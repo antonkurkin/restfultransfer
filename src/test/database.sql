@@ -49,7 +49,7 @@ DROP TABLE IF EXISTS ExchangeRatios;
 CREATE TABLE ExchangeRatios (
   CurrencyFrom CHAR(3) NOT NULL,
   CurrencyTo   CHAR(3) NOT NULL,
-  Rate         DECIMAL NOT NULL,
+  Rate         FLOAT NOT NULL,
   PRIMARY KEY (CurrencyFrom, CurrencyTo)
 );
 
@@ -58,11 +58,11 @@ DROP TABLE IF EXISTS Transactions;
 CREATE TABLE Transactions (
   TransactionId   LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
   AccountId       LONG REFERENCES Accounts(AccountId) NOT NULL,
-  AccountIdTo     LONG REFERENCES Accounts(AccountId), -- NULL for external transfers
+  AccountIdTo     LONG REFERENCES Accounts(AccountId),          -- NULL for external transfers
   Amount          MONEY NOT NULL,
-  AmountExchanged MONEY NOT NULL,
-  Created          DATETIME DEFAULT(getdate()) NOT NULL,
-  ResultCode      INT,
+  AmountTo        MONEY,                                        -- NULL for external transfers
+  Created         DATETIME DEFAULT(getdate()) NOT NULL,
+  ResultCode      INT DEFAULT(-1) NOT NULL,
   CHECK (AccountActive(AccountId) AND AccountActive(AccountIdTo))
 );
 
@@ -94,11 +94,11 @@ INSERT INTO ExchangeRatios (CurrencyFrom,CurrencyTo,Rate) VALUES ('EUR','RUB',70
 INSERT INTO ExchangeRatios (CurrencyFrom,CurrencyTo,Rate) VALUES ('USD','EUR',60/70);
 INSERT INTO ExchangeRatios (CurrencyFrom,CurrencyTo,Rate) VALUES ('EUR','USD',70/60);
 
-INSERT INTO Transactions (AccountId, AccountIdTo, Amount, AmountExchanged, ResultCode) VALUES (1,NULL,3000,3000,0);
-INSERT INTO Transactions (AccountId, AccountIdTo, Amount, AmountExchanged, ResultCode) VALUES (2,NULL,200,100,0);
-INSERT INTO Transactions (AccountId, AccountIdTo, Amount, AmountExchanged, ResultCode) VALUES (2,3,100,100,0);
-INSERT INTO Transactions (AccountId, AccountIdTo, Amount, AmountExchanged, ResultCode) VALUES (4,NULL,100,100,0);
-INSERT INTO Transactions (AccountId, AccountIdTo, Amount, AmountExchanged, ResultCode) VALUES (5,NULL,10,10,0);
-INSERT INTO Transactions (AccountId, AccountIdTo, Amount, AmountExchanged, ResultCode) VALUES (6,NULL,7000,7000,0);
-INSERT INTO Transactions (AccountId, AccountIdTo, Amount, AmountExchanged, ResultCode) VALUES (6,7,700,100,0);
-INSERT INTO Transactions (AccountId, AccountIdTo, Amount, AmountExchanged, ResultCode) VALUES (5,8,10,700,0);
+INSERT INTO Transactions (AccountId, AccountIdTo, Amount, AmountTo, ResultCode) VALUES (1,NULL,3000,NULL,0);
+INSERT INTO Transactions (AccountId, AccountIdTo, Amount, AmountTo, ResultCode) VALUES (2,NULL,200 ,NULL,0);
+INSERT INTO Transactions (AccountId, AccountIdTo, Amount, AmountTo, ResultCode) VALUES (2,3   ,100 ,100 ,0);
+INSERT INTO Transactions (AccountId, AccountIdTo, Amount, AmountTo, ResultCode) VALUES (4,NULL,100 ,NULL,0);
+INSERT INTO Transactions (AccountId, AccountIdTo, Amount, AmountTo, ResultCode) VALUES (5,NULL,10  ,NULL,0);
+INSERT INTO Transactions (AccountId, AccountIdTo, Amount, AmountTo, ResultCode) VALUES (6,NULL,7000,NULL,0);
+INSERT INTO Transactions (AccountId, AccountIdTo, Amount, AmountTo, ResultCode) VALUES (6,7   ,700 ,100 ,0);
+INSERT INTO Transactions (AccountId, AccountIdTo, Amount, AmountTo, ResultCode) VALUES (5,8   ,10  ,700 ,0);
