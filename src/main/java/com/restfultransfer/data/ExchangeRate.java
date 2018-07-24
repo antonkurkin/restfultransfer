@@ -2,6 +2,8 @@ package com.restfultransfer.data;
 
 import java.util.Currency;
 
+import java.math.BigDecimal;
+
 public class ExchangeRate {
 
 	private Currency currencyFrom;
@@ -20,4 +22,8 @@ public class ExchangeRate {
 	public Currency CurrencyFrom() { return currencyFrom; }
 	public Currency CurrencyTo()   { return currencyTo; }
 	public double Rate()           { return rate; }
+	
+	public BigDecimal Exchange(BigDecimal amount) {
+		return amount.multiply(amount);
+	}
 }
