@@ -9,6 +9,8 @@ import org.apache.commons.dbutils.DbUtils;
 
 import java.lang.String;
 
+import java.util.Vector;
+
 public class ClientDAO extends H2Connector {
 	
 	private static Client ClientByResultSet(ResultSet result) throws SQLException
@@ -96,6 +98,13 @@ public class ClientDAO extends H2Connector {
 			throw new Exception("Can't change active state of Client in DB", e);
 		} finally {
 			DbUtils.closeQuietly(connection, sqlStatement, result);
+		}
+		
+		if (!active)
+		{
+			Vector<Account> accounts = AccountDAO.GetAll(client);
+			for (Account account : accounts)
+				AccountDAO.SetActive(account, active);
 		}
 	}
 }
