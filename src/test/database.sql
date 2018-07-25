@@ -1,4 +1,7 @@
 DROP TABLE IF EXISTS Users;
+DROP TABLE IF EXISTS Accounts;
+DROP TABLE IF EXISTS ExchangeRatios;
+DROP TABLE IF EXISTS Transactions;
 
 CREATE TABLE Clients (
   ClientId LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
@@ -7,76 +10,72 @@ CREATE TABLE Clients (
   Created  DATETIME DEFAULT(getdate()) NOT NULL
 );
 
-DROP FUNCTION IF EXISTS ClientActive;
-
-CREATE FUNCTION ClientActive(@id LONG REFERENCES Clients(ClientId))
+/*
+CREATE FUNCTION IF NOT EXISTS ClientActive(@id LONG) -- NO FUNCTIONS USE TRIGGER?
 RETURNS BOOLEAN
 AS BEGIN
-    DECLARE @active AS BOOLEAN;
+    IF @id IS NULL THEN RETURN FALSE
+    DECLARE @active BOOLEAN
     SELECT @active = Clients.Active
       FROM Clients
-      WHERE Clients.ClientId = @id;
-    RETURN @active;
-END
-
-DROP TABLE IF EXISTS Accounts;
+      WHERE Clients.ClientId = @id
+    RETURN @active
+END;
+*/
 
 CREATE TABLE Accounts (
   AccountId LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
-  ClientId  LONG REFERENCES Clients(ClientId) NOT NULL,
-  Currency  CHAR(3) NOT NULL,
-  Balance   MONEY DEFAULT(0) NOT NULL,
+  ClientId  LONG NOT NULL,
+  Currency  VARCHAR(3) NOT NULL,
+  Balance   DECIMAL DEFAULT(0) NOT NULL,
   Active    BOOLEAN DEFAULT(TRUE) NOT NULL,
   Created   DATETIME DEFAULT(getdate()) NOT NULL,
-  CHECK(ClientActive(ClientId))
+  FOREIGN KEY (ClientId) REFERENCES Clients(ClientId)
+  -- CHECK(ClientActive(ClientId))
 );
 
-DROP FUNCTION IF EXISTS AccountActive;
-
-CREATE FUNCTION AccountActive(@id LONG REFERENCES Accounts(AccountId))
+/*
+CREATE FUNCTION IF NOT EXISTS AccountActive(@id LONG) -- NO FUNCTIONS USE TRIGGER?
 RETURNS BOOLEAN
 AS BEGIN
-    IF @id = NULL THEN RETURN TRUE;
-    DECLARE @active AS BOOLEAN;
+    IF @id IS NULL THEN RETURN TRUE
+    DECLARE @active BOOLEAN
     SELECT @active = Accounts.Active
       FROM Accounts
-      WHERE Accounts.AccountId = @id;
-    RETURN @active;
-END
-
-DROP TABLE IF EXISTS ExchangeRatios;
+      WHERE Accounts.AccountId = @id
+    RETURN @active
+END;
+*/
 
 CREATE TABLE ExchangeRatios (
-  CurrencyFrom CHAR(3) NOT NULL,
-  CurrencyTo   CHAR(3) NOT NULL,
+  CurrencyFrom VARCHAR(3) NOT NULL,
+  CurrencyTo   VARCHAR(3) NOT NULL,
   Rate         FLOAT NOT NULL,
   PRIMARY KEY (CurrencyFrom, CurrencyTo)
 );
 
-DROP TABLE IF EXISTS Transactions;
-
 CREATE TABLE Transactions (
   TransactionId   LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
-  AccountId       LONG REFERENCES Accounts(AccountId) NOT NULL,
-  AccountIdTo     LONG REFERENCES Accounts(AccountId),          -- NULL for external transfers
-  Amount          MONEY NOT NULL,
-  AmountTo        MONEY,                                        -- NULL for external transfers
+  AccountId       LONG NOT NULL,
+  AccountIdTo     LONG,             -- NULL for external transfers
+  Amount          DECIMAL NOT NULL,
+  AmountTo        DECIMAL,          -- NULL for external transfers
   Created         DATETIME DEFAULT(getdate()) NOT NULL,
   ResultCode      INT DEFAULT(-1) NOT NULL,
-  CHECK (AccountActive(AccountId) AND AccountActive(AccountIdTo))
+  FOREIGN KEY (AccountId) REFERENCES Accounts(AccountId),
+  FOREIGN KEY (AccountIdTo) REFERENCES Accounts(AccountId),
+  CHECK ((AccountIdTo IS NULL AND AmountTo IS NULL) OR (NOT AccountIdTo IS NULL AND NOT AmountTo IS NULL)),
+  -- CHECK (AccountActive(AccountId) AND AccountActive(AccountIdTo))
 );
 
-CREATE INDEX Requests_ByAccountId on Transactions(AccountId);
-CREATE INDEX Requests_ByAccountIdTo on Transactions(AccountIdTo);
-
-ALTER TABLE Clients AUTO_INCREMENT = 1;
+ALTER TABLE Clients ALTER COLUMN ClientId RESTART WITH 1;
 
 INSERT INTO Clients (Name) VALUES ('anton'); -- 1
 INSERT INTO Clients (Name) VALUES ('alex');  -- 2
 INSERT INTO Clients (Name) VALUES ('peter'); -- 3
 INSERT INTO Clients (Name) VALUES ('anna');  -- 4
 
-ALTER TABLE Accounts AUTO_INCREMENT = 1;
+ALTER TABLE Accounts ALTER COLUMN AccountId RESTART WITH 1;
 
 INSERT INTO Accounts (ClientId,Currency,Balance) VALUES (1,'RUB',10000.0000); -- 1
 INSERT INTO Accounts (ClientId,Currency,Balance) VALUES (1,'USD',100.0000);   -- 2
