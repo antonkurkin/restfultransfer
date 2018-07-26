@@ -4,11 +4,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import org.apache.commons.dbutils.DbUtils;
 
 import java.lang.String;
-
 import java.util.Vector;
 
 public class ClientDAO extends LongIdObjectDAO<Client> {
@@ -33,13 +33,15 @@ public class ClientDAO extends LongIdObjectDAO<Client> {
 		ResultSet result = null;
 		try {
 			connection = getConnection();
-			sqlStatement = connection.prepareStatement("INSERT INTO Clients (Name) VALUES (?)");
+			sqlStatement = connection.prepareStatement("INSERT INTO " + TableName() + " (Name) VALUES (?)", Statement.RETURN_GENERATED_KEYS);
 			sqlStatement.setString(1, name);
 			int rowCount = sqlStatement.executeUpdate();
 			if (rowCount == 0)
 				throw new Exception("Client wasn't created in DB");
-			result = sqlStatement.getResultSet();
-			return ObjectByResultSet(result);
+			result = sqlStatement.getGeneratedKeys();
+			if (!result.next())
+				throw new Exception("Can't receive client Id from DB");
+			return Get(connection, result.getLong(1), false);
 		} catch (SQLException e) {
 			throw new Exception("Can't create client in DB", e);
 		} finally {
