@@ -9,5 +9,5 @@ public class WhereLong extends WhereField {
 		super(FieldName);
 		this.l = l;
 	}
-	void setField(int n, PreparedStatement sqlStatement) throws SQLException { sqlStatement.setLong(n, l); }
+	void SetField(int n, PreparedStatement sqlStatement) throws SQLException { sqlStatement.setLong(n, l); }
 }

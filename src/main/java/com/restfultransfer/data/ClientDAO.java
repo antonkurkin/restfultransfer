@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import org.apache.commons.dbutils.DbUtils;
 
@@ -26,27 +25,27 @@ public class ClientDAO extends LongIdObjectDAO<Client> {
 				result.getTimestamp("Created")
 				);
 	}
+
+	class ValuesFieldsClient extends ValuesFields {
+		final String[] fieldNames = {"Name"};
+		final String name;
+		
+		public ValuesFieldsClient(String name)
+		{
+			this.name = name;
+		}
+		
+		@Override
+		String[] FieldNames() { return fieldNames; }
+		
+		@Override
+		void SetValues(PreparedStatement sqlStatement) throws SQLException {
+			sqlStatement.setString(1, name);
+		}
+	}
 	
 	public Client Create(String name) throws Exception {
-		Connection connection = null;
-		PreparedStatement sqlStatement = null;
-		ResultSet result = null;
-		try {
-			connection = getConnection();
-			sqlStatement = connection.prepareStatement("INSERT INTO " + TableName() + " (Name) VALUES (?)", Statement.RETURN_GENERATED_KEYS);
-			sqlStatement.setString(1, name);
-			int rowCount = sqlStatement.executeUpdate();
-			if (rowCount == 0)
-				throw new Exception("Client wasn't created in DB");
-			result = sqlStatement.getGeneratedKeys();
-			if (!result.next())
-				throw new Exception("Can't receive client Id from DB");
-			return Get(connection, result.getLong(1), false);
-		} catch (SQLException e) {
-			throw new Exception("Can't create client in DB", e);
-		} finally {
-			DbUtils.closeQuietly(connection, sqlStatement, result);
-		}
+		return Create(new ValuesFieldsClient(name));
 	}
 
 	public void ChangeName(Client client, String newName) throws Exception {
@@ -102,7 +101,7 @@ public class ClientDAO extends LongIdObjectDAO<Client> {
 			super(FieldName);
 			this.s = s;
 		}
-		void setField(int n, PreparedStatement sqlStatement) throws SQLException { sqlStatement.setString(n, s); }
+		void SetField(int n, PreparedStatement sqlStatement) throws SQLException { sqlStatement.setString(n, s); }
 	}
 
 	public Vector<Client> GetAllByName(String name) throws Exception {

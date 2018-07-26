@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import org.apache.commons.dbutils.DbUtils;
 
@@ -31,27 +30,29 @@ public class AccountDAO extends LongIdObjectDAO<Account> {
 				);
 	}
 	
-	public Account Create(long clientId, Currency currency) throws Exception {
-		Connection connection = null;
-		PreparedStatement sqlStatement = null;
-		ResultSet result = null;
-		try {
-			connection = getConnection();
-			sqlStatement = connection.prepareStatement("INSERT INTO " + TableName() + " (ClientId, Currency) VALUES (?, ?)", Statement.RETURN_GENERATED_KEYS);
+	class ValuesFieldsAccount extends ValuesFields {
+		final String[] fieldNames = {"ClientId", "Currency"};
+		final long clientId;
+		final Currency currency;
+		
+		public ValuesFieldsAccount(long clientId, Currency currency)
+		{
+			this.clientId = clientId;
+			this.currency = currency;
+		}
+		
+		@Override
+		String[] FieldNames() { return fieldNames; }
+		
+		@Override
+		void SetValues(PreparedStatement sqlStatement) throws SQLException {
 			sqlStatement.setLong(1, clientId);
 			sqlStatement.setString(2, currency.getCurrencyCode());
-			int rowCount = sqlStatement.executeUpdate();
-			if (rowCount == 0)
-				throw new Exception("Account wasn't created in DB");
-			result = sqlStatement.getGeneratedKeys();
-			if (!result.next())
-				throw new Exception("Can't receive account Id from DB");
-			return Get(connection, result.getLong(1), false);
-		} catch (SQLException e) {
-			throw new Exception("Can't create account in DB", e);
-		} finally {
-			DbUtils.closeQuietly(connection, sqlStatement, result);
 		}
+	}
+	
+	public Account Create(long clientId, Currency currency) throws Exception {
+		return Create(new ValuesFieldsAccount(clientId, currency));
 	}
 	
 	public void SetActive(Account account, boolean active) throws Exception {

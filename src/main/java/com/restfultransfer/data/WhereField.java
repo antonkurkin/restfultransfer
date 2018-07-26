@@ -8,5 +8,5 @@ public abstract class WhereField {
 	public WhereField(String FieldName) {
 		this.FieldName = FieldName;
 	}
-	abstract void setField(int n, PreparedStatement sqlStatement) throws SQLException;
+	abstract void SetField(int n, PreparedStatement sqlStatement) throws SQLException;
 }
