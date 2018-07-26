@@ -3,7 +3,7 @@ package com.restfultransfer.servlet;
 import java.util.Vector;
 
 import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -40,8 +40,8 @@ public class ClientServlet {
     public Vector<Client> GetAll(@PathParam("name") String name) throws Exception {
     	return (new ClientDAO()).GetAllByName(name);
     }
-
-    @PUT
+    
+    @POST
     @Path("/new/{name}")
     public Client Create(@PathParam("name") String name) throws Exception {
     	return (new ClientDAO()).Create(name);

@@ -1,14 +1,11 @@
 package com.restfultransfer.data;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import java.util.Vector;
 import java.math.BigDecimal;
-
-import org.apache.commons.dbutils.DbUtils;
 
 public class TransactionDAO extends LongIdObjectDAO<Transaction> {
 	@Override
@@ -36,54 +33,58 @@ public class TransactionDAO extends LongIdObjectDAO<Transaction> {
 		transactions.addAll(GetAll(whereAccountTo));
 		return transactions;
 	}
-	
-	public Transaction CreateExternalTransfer(Account account, BigDecimal amount) throws Exception {
-		Connection connection = null;
-		PreparedStatement sqlStatement = null;
-		ResultSet result = null;
-		try {
-			connection = getConnection();
-			sqlStatement = connection.prepareStatement("INSERT INTO Transactions (AccountId, Amount) VALUES (?, ?)");
-			sqlStatement.setLong(1, account.Id());
+
+	class ValuesFieldsExtenal extends ValuesFields {
+		final String[] fieldNames = {"AccountId", "Amount"};
+		final long accountId;
+		final BigDecimal amount;
+		
+		public ValuesFieldsExtenal(long accountId, BigDecimal amount)
+		{
+			this.accountId = accountId;
+			this.amount = amount;
+		}
+		
+		@Override
+		String[] FieldNames() { return fieldNames; }
+		
+		@Override
+		void SetValues(PreparedStatement sqlStatement) throws SQLException {
+			sqlStatement.setLong(1, accountId);
 			sqlStatement.setBigDecimal(2, amount);
-			int rowCount = sqlStatement.executeUpdate();
-			if (rowCount == 0)
-				throw new Exception("External transfer wasn't created in DB");
-			result = sqlStatement.getResultSet();
-			return ObjectByResultSet(result);
-		} catch (SQLException e) {
-			throw new Exception("Can't create external transfer in DB", e);
-		} finally {
-			DbUtils.closeQuietly(connection, sqlStatement, result);
 		}
 	}
 	
-	public Transaction CreateInternalTransfer(Account accountFrom, Account accountTo, BigDecimal amountFrom) throws Exception {
-		Connection connection = null;
-		PreparedStatement sqlStatement = null;
-		ResultSet result = null;
+	public Transaction CreateExternal(long accountId, BigDecimal amount) throws Exception {
+		return Create(new ValuesFieldsExtenal(accountId, amount));
+	}
+
+	class ValuesFieldsIntenal extends ValuesFields {
+		final String[] fieldNames = {"AccountId", "AccountIdTo", "Amount", "AmountTo"};
+		final long accountIdFrom, accountIdTo;
+		final BigDecimal amountFrom, amountTo;
 		
-		BigDecimal amountTo = amountFrom;
-		BigDecimal amountFromNeg = amountFrom.negate();
-		if (accountFrom.Currency() != accountTo.Currency())
-			amountTo = (new ExchangeRateDAO()).Get(accountFrom.Currency(), accountTo.Currency()).Exchange(amountTo);
-		
-		try {
-			connection = getConnection();
-			sqlStatement = connection.prepareStatement("INSERT INTO Transactions (AccountId, AccountIdTo, Amount, AmountTo) VALUES (?, ?, ?, ?)");
-			sqlStatement.setLong(1, accountFrom.Id());
-			sqlStatement.setLong(2, accountTo.Id());
-			sqlStatement.setBigDecimal(3, amountFromNeg);
-			sqlStatement.setBigDecimal(4, amountTo);
-			int rowCount = sqlStatement.executeUpdate();
-			if (rowCount == 0)
-				throw new Exception("Internal transfer wasn't created in DB");
-			result = sqlStatement.getResultSet();
-			return ObjectByResultSet(result);
-		} catch (SQLException e) {
-			throw new Exception("Can't create internal transfer in DB", e);
-		} finally {
-			DbUtils.closeQuietly(connection, sqlStatement, result);
+		public ValuesFieldsIntenal(long accountIdFrom, long accountIdTo, BigDecimal amountFrom, BigDecimal amountTo)
+		{
+			this.accountIdFrom = accountIdFrom;
+			this.accountIdTo = accountIdTo;
+			this.amountFrom = amountFrom;
+			this.amountTo = amountTo;
 		}
+		
+		@Override
+		String[] FieldNames() { return fieldNames; }
+		
+		@Override
+		void SetValues(PreparedStatement sqlStatement) throws SQLException {
+			sqlStatement.setLong(1, accountIdFrom);
+			sqlStatement.setLong(2, accountIdTo);
+			sqlStatement.setBigDecimal(3, amountFrom);
+			sqlStatement.setBigDecimal(4, amountTo);
+		}
+	}
+	
+	public Transaction CreateInternal(long accountIdFrom, long accountIdTo, BigDecimal amountFrom, BigDecimal amountTo) throws Exception {
+		return Create(new ValuesFieldsIntenal(accountIdFrom, accountIdTo, amountFrom, amountTo));
 	}
 }
