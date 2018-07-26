@@ -4,10 +4,10 @@ DROP TABLE IF EXISTS ExchangeRatios;
 DROP TABLE IF EXISTS Transactions;
 
 CREATE TABLE Clients (
-  ClientId LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
-  Name     VARCHAR NOT NULL,
-  Active   BOOLEAN DEFAULT(TRUE) NOT NULL,
-  Created  DATETIME DEFAULT(getdate()) NOT NULL
+  Id      LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
+  Name    VARCHAR NOT NULL,
+  Active  BOOLEAN DEFAULT(TRUE) NOT NULL,
+  Created DATETIME DEFAULT(getdate()) NOT NULL
 );
 
 /*
@@ -18,20 +18,20 @@ AS BEGIN
     DECLARE @active BOOLEAN
     SELECT @active = Clients.Active
       FROM Clients
-      WHERE Clients.ClientId = @id
+      WHERE Clients.Id = @id
     RETURN @active
 END;
 */
 
 CREATE TABLE Accounts (
-  AccountId LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
-  ClientId  LONG NOT NULL,
-  Currency  VARCHAR(3) NOT NULL,
-  Balance   DECIMAL DEFAULT(0) NOT NULL,
-  Active    BOOLEAN DEFAULT(TRUE) NOT NULL,
-  Created   DATETIME DEFAULT(getdate()) NOT NULL,
-  FOREIGN KEY (ClientId) REFERENCES Clients(ClientId)
-  -- CHECK(ClientActive(ClientId))
+  Id       LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
+  ClientId LONG NOT NULL,
+  Currency CHAR(3) NOT NULL,
+  Balance  DECIMAL DEFAULT(0) NOT NULL,
+  Active   BOOLEAN DEFAULT(TRUE) NOT NULL,
+  Created  DATETIME DEFAULT(getdate()) NOT NULL,
+  FOREIGN KEY (ClientId) REFERENCES Clients(Id)
+  -- CHECK(ClientActive(Id))
 );
 
 /*
@@ -42,40 +42,40 @@ AS BEGIN
     DECLARE @active BOOLEAN
     SELECT @active = Accounts.Active
       FROM Accounts
-      WHERE Accounts.AccountId = @id
+      WHERE Accounts.Id = @id
     RETURN @active
 END;
 */
 
 CREATE TABLE ExchangeRatios (
-  CurrencyFrom VARCHAR(3) NOT NULL,
-  CurrencyTo   VARCHAR(3) NOT NULL,
+  CurrencyFrom CHAR(3) NOT NULL,
+  CurrencyTo   CHAR(3) NOT NULL,
   Rate         FLOAT NOT NULL,
   PRIMARY KEY (CurrencyFrom, CurrencyTo)
 );
 
 CREATE TABLE Transactions (
-  TransactionId   LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
-  AccountId       LONG NOT NULL,
-  AccountIdTo     LONG,             -- NULL for external transfers
-  Amount          DECIMAL NOT NULL,
-  AmountTo        DECIMAL,          -- NULL for external transfers
-  Created         DATETIME DEFAULT(getdate()) NOT NULL,
-  ResultCode      INT DEFAULT(-1) NOT NULL,
-  FOREIGN KEY (AccountId) REFERENCES Accounts(AccountId),
-  FOREIGN KEY (AccountIdTo) REFERENCES Accounts(AccountId),
+  Id          LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
+  AccountId   LONG NOT NULL,
+  AccountIdTo LONG,             -- NULL for external transfers
+  Amount      DECIMAL NOT NULL,
+  AmountTo    DECIMAL,          -- NULL for external transfers
+  Created     DATETIME DEFAULT(getdate()) NOT NULL,
+  ResultCode  INT DEFAULT(-1) NOT NULL,
+  FOREIGN KEY (AccountId) REFERENCES Accounts(Id),
+  FOREIGN KEY (AccountIdTo) REFERENCES Accounts(Id),
   CHECK ((AccountIdTo IS NULL AND AmountTo IS NULL) OR (NOT AccountIdTo IS NULL AND NOT AmountTo IS NULL)),
   -- CHECK (AccountActive(AccountId) AND AccountActive(AccountIdTo))
 );
 
-ALTER TABLE Clients ALTER COLUMN ClientId RESTART WITH 1;
+ALTER TABLE Clients ALTER COLUMN Id RESTART WITH 1;
 
 INSERT INTO Clients (Name) VALUES ('anton'); -- 1
 INSERT INTO Clients (Name) VALUES ('alex');  -- 2
 INSERT INTO Clients (Name) VALUES ('peter'); -- 3
 INSERT INTO Clients (Name) VALUES ('anna');  -- 4
 
-ALTER TABLE Accounts ALTER COLUMN AccountId RESTART WITH 1;
+ALTER TABLE Accounts ALTER COLUMN Id RESTART WITH 1;
 
 INSERT INTO Accounts (ClientId,Currency,Balance) VALUES (1,'RUB',10000.0000); -- 1
 INSERT INTO Accounts (ClientId,Currency,Balance) VALUES (1,'USD',100.0000);   -- 2
