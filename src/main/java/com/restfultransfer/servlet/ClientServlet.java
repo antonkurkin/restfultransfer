@@ -61,4 +61,25 @@ public class ClientServlet {
         	return Response.status(Response.Status.NO_CONTENT).build();
     	return Response.status(Response.Status.OK).build();
     }
+    
+    @PUT
+    @Path("/{clientId}/deactivate")
+    public Response Deactivate(@PathParam("clientId") long clientId) throws Exception {
+    	int changed = (new ClientDAO()).SetActive(clientId, false);
+    	if (changed != 1)
+        	return Response.status(Response.Status.NO_CONTENT).build();
+		AccountDAO accountDAO = new AccountDAO();
+		for (Account account : accountDAO.GetAllByClient(clientId))
+			accountDAO.SetActive(account.Id(), false);
+    	return Response.status(Response.Status.OK).build();
+    }
+
+    @PUT
+    @Path("/{clientId}/activate")
+    public Response Activate(@PathParam("clientId") long clientId) throws Exception {
+    	int changed = (new ClientDAO()).SetActive(clientId, true);
+    	if (changed != 1)
+        	return Response.status(Response.Status.NO_CONTENT).build();
+    	return Response.status(Response.Status.OK).build();
+    }
 }

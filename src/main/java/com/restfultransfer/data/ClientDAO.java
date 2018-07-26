@@ -65,7 +65,7 @@ public class ClientDAO extends LongIdObjectDAO<Client> {
 		}
 	}
 	
-	public void SetActive(Client client, boolean active) throws Exception {
+	public int SetActive(long clientId, boolean active) throws Exception {
 		Connection connection = null;
 		PreparedStatement sqlStatement = null;
 		ResultSet result = null;
@@ -73,23 +73,12 @@ public class ClientDAO extends LongIdObjectDAO<Client> {
 			connection = getConnection();
 			sqlStatement = connection.prepareStatement("UPDATE Clients SET Active = ? WHERE Id = ?");
 			sqlStatement.setBoolean(1, active);
-			sqlStatement.setLong(2, client.Id());
-			int rowCount = sqlStatement.executeUpdate();
-			if (rowCount == 0)
-				throw new Exception("Client's active state wasn't changed in DB");
+			sqlStatement.setLong(2, clientId);
+			return sqlStatement.executeUpdate();
 		} catch (SQLException e) {
 			throw new Exception("Can't change active state of Client in DB", e);
 		} finally {
 			DbUtils.closeQuietly(connection, sqlStatement, result);
-		}
-		
-		AccountDAO accDAO = new AccountDAO();
-		if (!active)
-		{
-			WhereLong whereClient = new WhereLong("ClientId", client.Id());
-			Vector<Account> accounts = accDAO.GetAll(whereClient);
-			for (Account account : accounts)
-				accDAO.SetActive(account, active);
 		}
 	}
 
