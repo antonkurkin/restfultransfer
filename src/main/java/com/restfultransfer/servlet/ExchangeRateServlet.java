@@ -4,6 +4,7 @@ import java.util.Currency;
 import java.util.Vector;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -16,8 +17,8 @@ import com.restfultransfer.data.ExchangeRateDAO;
 @Produces(MediaType.APPLICATION_JSON)
 public class ExchangeRateServlet {
     @GET
-    @Path("/{CurrencyFrom}/{CurrencyTo}")
-    public ExchangeRate Get(@PathParam("CurrencyFrom") String currencyFrom, @PathParam("CurrencyTo") String currencyTo) throws Exception {
+    @Path("/{currencyFrom}/{currencyTo}")
+    public ExchangeRate Get(@PathParam("currencyFrom") String currencyFrom, @PathParam("currencyTo") String currencyTo) throws Exception {
     	return (new ExchangeRateDAO()).Get(Currency.getInstance(currencyFrom), Currency.getInstance(currencyTo));
     }
     
@@ -25,5 +26,11 @@ public class ExchangeRateServlet {
     @Path("/list")
     public Vector<ExchangeRate> GetAll() throws Exception {
     	return (new ExchangeRateDAO()).GetAll();
+    }
+
+    @POST
+    @Path("/new/{currencyFrom},{currencyTo},{rate}")
+    public ExchangeRate Create(@PathParam("currencyFrom") String currencyFrom, @PathParam("currencyTo") String currencyTo, @PathParam("rate") Double rate) throws Exception {
+    	return (new ExchangeRateDAO()).Create(Currency.getInstance(currencyFrom), Currency.getInstance(currencyTo), rate);
     }
 }
