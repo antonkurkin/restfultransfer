@@ -87,7 +87,8 @@ public class ClientDAO extends LongIdObjectDAO<Client> {
 		AccountDAO accDAO = new AccountDAO();
 		if (!active)
 		{
-			Vector<Account> accounts = accDAO.GetAll(client);
+			WhereLong whereClient = new WhereLong("ClientId", client.Id());
+			Vector<Account> accounts = accDAO.GetAll(whereClient);
 			for (Account account : accounts)
 				accDAO.SetActive(account, active);
 		}

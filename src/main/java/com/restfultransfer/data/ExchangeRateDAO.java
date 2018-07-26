@@ -8,10 +8,11 @@ import java.sql.SQLException;
 import org.apache.commons.dbutils.DbUtils;
 
 import java.util.Currency;
+import java.util.Vector;
 
 public class ExchangeRateDAO extends H2Connector {
 
-	private static ExchangeRate ExchangeRateByResultSet(ResultSet result) throws SQLException
+	private static ExchangeRate ObjectByResultSet(ResultSet result) throws SQLException
 	{
 		if (!result.next())
 			return null;
@@ -33,9 +34,33 @@ public class ExchangeRateDAO extends H2Connector {
 			sqlStatement.setString(2, currencyTo.getCurrencyCode());
 			result = sqlStatement.executeQuery();
 			
-			return ExchangeRateByResultSet(result);
+			return ObjectByResultSet(result);
 		} catch (SQLException e) {
 			throw new Exception("Can't get account from DB", e);
+		} finally {
+			DbUtils.closeQuietly(connection, sqlStatement, result);
+		}
+	}
+
+	public Vector<ExchangeRate> GetAll() throws Exception {
+		Connection connection = null;
+		PreparedStatement sqlStatement = null;
+		ResultSet result = null;
+		try {
+			connection = getConnection();
+			sqlStatement = connection.prepareStatement("SELECT * FROM ExchangeRates");
+			result = sqlStatement.executeQuery();
+			
+			Vector<ExchangeRate> objects = new Vector<ExchangeRate>();
+			ExchangeRate obj = ObjectByResultSet(result);
+			while (obj != null)
+			{
+				objects.add(obj);
+				obj = ObjectByResultSet(result);
+			}
+			return objects;
+		} catch (SQLException e) {
+			throw new Exception("Can't get objects from table ExchangeRates", e);
 		} finally {
 			DbUtils.closeQuietly(connection, sqlStatement, result);
 		}

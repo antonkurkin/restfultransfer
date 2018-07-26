@@ -2,6 +2,8 @@ package com.restfultransfer.servlet;
 
 import com.restfultransfer.data.Account;
 import com.restfultransfer.data.AccountDAO;
+import com.restfultransfer.data.Transaction;
+import com.restfultransfer.data.TransactionDAO;
 
 import java.util.Vector;
 
@@ -15,14 +17,20 @@ import javax.ws.rs.core.MediaType;
 @Produces(MediaType.APPLICATION_JSON)
 public class AccountServlet {
     @GET
+    @Path("/list")
+    public Vector<Account> GetAll() throws Exception {
+    	return (new AccountDAO()).GetAll();
+    }
+    
+    @GET
     @Path("/{accountId}")
     public Account Get(@PathParam("accountId") long accountId) throws Exception {
     	return (new AccountDAO()).Get(accountId);
     }
     
     @GET
-    @Path("/list")
-    public Vector<Account> GetAll() throws Exception {
-    	return (new AccountDAO()).GetAll();
+    @Path("/{accountId}/transactions")
+    public Vector<Transaction> GetTransactions(@PathParam("accountId") long accountId) throws Exception {
+    	return (new TransactionDAO()).GetAllByAccount(accountId);
     }
 }

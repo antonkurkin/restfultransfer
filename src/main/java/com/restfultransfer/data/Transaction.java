@@ -30,8 +30,14 @@ public class Transaction {
 			BigDecimal amountTo,
 			Timestamp created,
 			int resultCode) {
-		if (accountIdTo != 0 && (amount.signum() >= 0 || amountTo.signum() <= 0))
-			throw new IllegalArgumentException("Can't create internal transfer with negative or zero amount");
+		
+		if (amount.signum() == 0)
+			throw new IllegalArgumentException("Can't create transaction with zero amount");
+		if (accountIdTo != 0) {
+			if (amount.signum() > 0 || amountTo.signum() <= 0)
+				throw new IllegalArgumentException("Can't create reversed internal transfer");
+		} else if (amountTo.signum() != 0)
+			throw new IllegalArgumentException("Can't create external transfer with negative or zero amount");
 		
 		this.Id = Id;
 		this.accountId = accountId;

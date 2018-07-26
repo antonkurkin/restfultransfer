@@ -44,13 +44,19 @@ public abstract class LongIdObjectDAO<T> extends H2Connector {
 		}
 	}
 
-	public Vector<T> GetAll() throws Exception {
+	protected Vector<T> GetAll(WhereField where) throws Exception {
 		Connection connection = null;
 		PreparedStatement sqlStatement = null;
 		ResultSet result = null;
 		try {
 			connection = getConnection();
-			sqlStatement = connection.prepareStatement("SELECT * FROM " + TableName());
+			if (where != null)
+			{
+				sqlStatement = connection.prepareStatement("SELECT * FROM " + TableName() + " WHERE " + where.FieldName + " = ?");
+				where.setField(1, sqlStatement);
+			}
+			else
+				sqlStatement = connection.prepareStatement("SELECT * FROM " + TableName());
 			result = sqlStatement.executeQuery();
 			
 			Vector<T> objects = new Vector<T>();
@@ -66,5 +72,9 @@ public abstract class LongIdObjectDAO<T> extends H2Connector {
 		} finally {
 			DbUtils.closeQuietly(connection, sqlStatement, result);
 		}
+	}
+
+	public Vector<T> GetAll() throws Exception {
+		return GetAll(null);
 	}
 }

@@ -10,10 +10,18 @@ import javax.ws.rs.core.MediaType;
 
 import com.restfultransfer.data.Client;
 import com.restfultransfer.data.ClientDAO;
+import com.restfultransfer.data.Account;
+import com.restfultransfer.data.AccountDAO;
 
 @Path("/client")
 @Produces(MediaType.APPLICATION_JSON)
 public class ClientServlet {
+    @GET
+    @Path("/list")
+    public Vector<Client> GetAll() throws Exception {
+    	return (new ClientDAO()).GetAll();
+    }
+    
     @GET
     @Path("/{clientId}")
     public Client Get(@PathParam("clientId") long clientId) throws Exception {
@@ -21,8 +29,8 @@ public class ClientServlet {
     }
     
     @GET
-    @Path("/list")
-    public Vector<Client> GetAll() throws Exception {
-    	return (new ClientDAO()).GetAll();
+    @Path("/{clientId}/accounts")
+    public Vector<Account> GetAccounts(@PathParam("clientId") long clientId) throws Exception {
+    	return (new AccountDAO()).GetAllByClient(clientId);
     }
 }

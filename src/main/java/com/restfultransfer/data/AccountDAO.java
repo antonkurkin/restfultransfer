@@ -10,6 +10,7 @@ import org.apache.commons.dbutils.DbUtils;
 import java.math.BigDecimal;
 
 import java.util.Currency;
+import java.util.Vector;
 
 public class AccountDAO extends LongIdObjectDAO<Account> {
 	@Override
@@ -127,5 +128,10 @@ public class AccountDAO extends LongIdObjectDAO<Account> {
 		} finally {
 			DbUtils.closeQuietly(connection, sqlStatement, result);
 		}
+	}
+	
+	public Vector<Account> GetAllByClient(long clientId) throws Exception {
+		WhereLong whereClient = new WhereLong("ClientId", clientId);
+		return GetAll(whereClient);
 	}
 }

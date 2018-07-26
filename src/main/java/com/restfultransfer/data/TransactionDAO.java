@@ -1,10 +1,12 @@
 package com.restfultransfer.data;
 
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import java.util.Vector;
+import java.math.BigDecimal;
 
 import org.apache.commons.dbutils.DbUtils;
 
@@ -19,12 +21,20 @@ public class TransactionDAO extends LongIdObjectDAO<Transaction> {
 		return new Transaction(
 				result.getLong("Id"),
 				result.getLong("AccountId"),
-				result.getLong("AccountIdTo"),           //0 if NULL
+				result.getLong("AccountIdTo"),    //0 if NULL
 				result.getBigDecimal("Amount"),
-				result.getBigDecimal("AmountExchanged"), //0 if NULL
+				result.getBigDecimal("AmountTo"),
 				result.getTimestamp("Created"),
 				result.getInt("ResultCode")
 				);
+	}
+	
+	public Vector<Transaction> GetAllByAccount(long accountId) throws Exception {
+		WhereLong whereAccount = new WhereLong("AccountId", accountId);
+		Vector<Transaction> transactions = GetAll(whereAccount);
+		WhereLong whereAccountTo = new WhereLong("AccountIdTo", accountId);
+		transactions.addAll(GetAll(whereAccountTo));
+		return transactions;
 	}
 	
 	public Transaction CreateExternalTransfer(Account account, BigDecimal amount) throws Exception {
