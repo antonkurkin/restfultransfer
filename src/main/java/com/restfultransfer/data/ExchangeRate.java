@@ -2,12 +2,17 @@ package com.restfultransfer.data;
 
 import java.util.Currency;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.math.BigDecimal;
 
 public class ExchangeRate {
 
+    @JsonProperty()
 	private Currency currencyFrom;
+    @JsonProperty()
 	private Currency currencyTo;
+    @JsonProperty()
 	private double   rate;
 
 	public ExchangeRate(

@@ -21,7 +21,7 @@ public class AccountDAO extends H2Connector {
 		return new Account(
 				result.getLong("AccountId"),
 				result.getLong("ClientId"),
-				Currency.getInstance(result.getString("CurrencyCode")),
+				Currency.getInstance(result.getString("Currency")),
 				result.getBigDecimal("Balance"),
 				result.getBoolean("Active"),
 				result.getTimestamp("Created")

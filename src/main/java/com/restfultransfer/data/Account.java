@@ -1,15 +1,24 @@
 package com.restfultransfer.data;
 
 import java.util.Currency;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 public class Account {
+    @JsonProperty()
 	private long accountId;
+    @JsonProperty()
 	private long clientId;
+    @JsonProperty()
 	private Currency currency;
+    @JsonProperty()
 	private BigDecimal balance;
+    @JsonProperty()
 	private boolean active;
+    @JsonProperty()
 	private Timestamp created;
 	
 	public Account(

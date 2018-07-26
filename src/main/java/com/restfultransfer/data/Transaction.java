@@ -3,14 +3,23 @@ package com.restfultransfer.data;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Transaction {
 
+    @JsonProperty()
 	private long transactionId;
+    @JsonProperty()
 	private long accountId;
+    @JsonProperty()
 	private long accountIdTo;     //0 for external transfers
+    @JsonProperty()
 	private BigDecimal amount;
+    @JsonProperty()
 	private BigDecimal amountTo;
+    @JsonProperty()
 	private Timestamp created;
+    @JsonProperty()
 	private int resultCode;
 
 	public Transaction(
