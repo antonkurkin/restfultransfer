@@ -13,14 +13,16 @@ public class App
     {
     	Server server = null;
     	try {
-	    	H2Connector.LoadTestDBFile("src/test/database.sql");
+	    	H2Connector.LoadSQLFile("src/main/database.sql");
+	    	H2Connector.LoadSQLFile("src/test/dataset.sql");
 	    	server = new Server(8080);
 	        ServletContextHandler servletHandler =
 	        		new ServletContextHandler(null, "/", ServletContextHandler.SESSIONS);
 	        servletHandler.addServlet(ServletContainer.class, "/*")
 	        	   .setInitParameter("jersey.config.server.provider.classnames",
-	        			                ClientServlet.class.getCanonicalName() + "," +
-	        			   				AccountServlet.class.getCanonicalName());
+	        			                ClientServlet.class.getCanonicalName()  + "," +
+	        			   				AccountServlet.class.getCanonicalName() + "," +
+	        			   				TransactionServlet.class.getCanonicalName());
 	        server.setHandler(servletHandler);
 			
 	        server.start();

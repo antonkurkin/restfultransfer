@@ -23,7 +23,7 @@ public class H2Connector {
 		DbUtils.closeQuietly(connection);
 	}
 	
-	public static void LoadTestDBFile(String filename) throws Exception {
+	public static void LoadSQLFile(String filename) throws Exception {
 		Connection connection = null;
 		try {
 			connection = getConnection();
