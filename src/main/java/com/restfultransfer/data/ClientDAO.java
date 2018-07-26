@@ -93,4 +93,18 @@ public class ClientDAO extends LongIdObjectDAO<Client> {
 				accDAO.SetActive(account, active);
 		}
 	}
+
+	public class WhereString extends WhereField {
+		String s;
+		public WhereString(String FieldName, String s) {
+			super(FieldName);
+			this.s = s;
+		}
+		void setField(int n, PreparedStatement sqlStatement) throws SQLException { sqlStatement.setString(n, s); }
+	}
+
+	public Vector<Client> GetAllByName(String name) throws Exception {
+		WhereString whereName = new WhereString("Name", name);
+		return GetAll(whereName);
+	}
 }

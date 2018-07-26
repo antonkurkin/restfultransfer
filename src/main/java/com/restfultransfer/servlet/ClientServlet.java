@@ -33,4 +33,10 @@ public class ClientServlet {
     public Vector<Account> GetAccounts(@PathParam("clientId") long clientId) throws Exception {
     	return (new AccountDAO()).GetAllByClient(clientId);
     }
+
+    @GET
+    @Path("/byName/{name}")
+    public Vector<Client> GetAll(@PathParam("name") String name) throws Exception {
+    	return (new ClientDAO()).GetAllByName(name);
+    }
 }
