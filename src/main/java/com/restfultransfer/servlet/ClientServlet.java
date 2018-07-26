@@ -4,10 +4,12 @@ import java.util.Vector;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import com.restfultransfer.data.Client;
 import com.restfultransfer.data.ClientDAO;
@@ -45,5 +47,18 @@ public class ClientServlet {
     @Path("/new/{name}")
     public Client Create(@PathParam("name") String name) throws Exception {
     	return (new ClientDAO()).Create(name);
+    }
+
+    @PUT
+    @Path("/{clientId}/setName/{newName}")
+    public Response SetName(@PathParam("clientId") long clientId, @PathParam("newName") String newName) throws Exception {
+    	ClientDAO clientDAO = new ClientDAO();
+    	Client client = clientDAO.Get(clientId);
+    	if (client == null)
+        	return Response.status(Response.Status.NO_CONTENT).build();
+    	int changed = clientDAO.ChangeName(client, newName);
+    	if (changed != 1)
+        	return Response.status(Response.Status.NO_CONTENT).build();
+    	return Response.status(Response.Status.OK).build();
     }
 }

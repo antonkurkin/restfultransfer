@@ -48,7 +48,7 @@ public class ClientDAO extends LongIdObjectDAO<Client> {
 		return Create(new ValuesFieldsClient(name));
 	}
 
-	public void ChangeName(Client client, String newName) throws Exception {
+	public int ChangeName(Client client, String newName) throws Exception {
 		Connection connection = null;
 		PreparedStatement sqlStatement = null;
 		ResultSet result = null;
@@ -57,9 +57,7 @@ public class ClientDAO extends LongIdObjectDAO<Client> {
 			sqlStatement = connection.prepareStatement("UPDATE Clients SET Name = ? WHERE Id = ?");
 			sqlStatement.setString(1, newName);
 			sqlStatement.setLong(2, client.Id());
-			int rowCount = sqlStatement.executeUpdate();
-			if (rowCount == 0)
-				throw new Exception("Client name wasn't changed");
+			return sqlStatement.executeUpdate();
 		} catch (SQLException e) {
 			throw new Exception("Can't change Client's name in DB", e);
 		} finally {
