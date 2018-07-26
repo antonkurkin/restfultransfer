@@ -25,7 +25,7 @@ public class ClientDAO extends H2Connector {
 				);
 	}
 	
-	static Client Get(long clientId) throws Exception {
+	public static Client Get(long clientId) throws Exception {
 		Connection connection = null;
 		PreparedStatement sqlStatement = null;
 		ResultSet result = null;
@@ -36,6 +36,31 @@ public class ClientDAO extends H2Connector {
 			result = sqlStatement.executeQuery();
 			
 			return ClientByResultSet(result);
+		} catch (SQLException e) {
+			throw new Exception("Can't get account from DB", e);
+		} finally {
+			DbUtils.closeQuietly(connection, sqlStatement, result);
+		}
+	}
+
+	
+	public static  Vector<Client> GetAll() throws Exception {
+		Connection connection = null;
+		PreparedStatement sqlStatement = null;
+		ResultSet result = null;
+		try {
+			connection = getConnection();
+			sqlStatement = connection.prepareStatement("SELECT * FROM Clients");
+			result = sqlStatement.executeQuery();
+
+			Vector<Client> clients = new Vector<Client>();
+			Client client = ClientByResultSet(result);
+			while (client != null)
+			{
+				clients.add(client);
+				client = ClientByResultSet(result);
+			}
+			return clients;
 		} catch (SQLException e) {
 			throw new Exception("Can't get account from DB", e);
 		} finally {

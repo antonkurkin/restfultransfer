@@ -64,8 +64,13 @@ public class AccountDAO extends H2Connector {
 		ResultSet result = null;
 		try {
 			connection = getConnection();
-			sqlStatement = connection.prepareStatement("SELECT * FROM Accounts WHERE ClientId = ?");
-			sqlStatement.setLong(1, client.ClientId());
+			if (client != null)
+			{
+				sqlStatement = connection.prepareStatement("SELECT * FROM Accounts WHERE ClientId = ?");
+				sqlStatement.setLong(1, client.ClientId());
+			}
+			else
+				sqlStatement = connection.prepareStatement("SELECT * FROM Accounts");
 			result = sqlStatement.executeQuery();
 			
 			Vector<Account> accounts = new Vector<Account>();

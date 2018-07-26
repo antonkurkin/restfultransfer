@@ -3,6 +3,8 @@ package com.restfultransfer.servlet;
 import com.restfultransfer.data.Account;
 import com.restfultransfer.data.AccountDAO;
 
+import java.util.Vector;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -16,5 +18,11 @@ public class AccountServlet {
     @Path("/{accountId}")
     public Account Get(@PathParam("accountId") long accountId) throws Exception {
     	return AccountDAO.Get(accountId);
+    }
+    
+    @GET
+    @Path("/list")
+    public Vector<Account> GetAll() throws Exception {
+    	return AccountDAO.GetAll(null);
     }
 }

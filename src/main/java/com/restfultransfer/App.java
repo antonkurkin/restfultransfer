@@ -9,7 +9,7 @@ import com.restfultransfer.servlet.*;
 
 public class App
 {
-    public static void main( String[] args )
+    public static void main(String[] args)
     {
     	Server server = null;
     	try {
@@ -19,6 +19,7 @@ public class App
 	        		new ServletContextHandler(null, "/", ServletContextHandler.SESSIONS);
 	        servletHandler.addServlet(ServletContainer.class, "/*")
 	        	   .setInitParameter("jersey.config.server.provider.classnames",
+	        			                ClientServlet.class.getCanonicalName() + "," +
 	        			   				AccountServlet.class.getCanonicalName());
 	        server.setHandler(servletHandler);
 			
