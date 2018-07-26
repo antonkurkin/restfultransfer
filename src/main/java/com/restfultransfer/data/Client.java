@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class Client {
 
     @JsonProperty()
-	private long clientId;
+	private long Id;
     @JsonProperty()
 	private String name;
     @JsonProperty()
@@ -17,18 +17,18 @@ public class Client {
 	private Timestamp created;
 	
 	public Client(
-			long clientId,
+			long Id,
 			String name,
 			boolean active,
 			Timestamp created) {
-		this.clientId = clientId;
+		this.Id = Id;
 		this.name = name;
 		this.active = active;
 		this.created = created;
 	}
 	
-	public long ClientId()     { return clientId; }
-	public String Name()       { return name; }
-	public boolean isActive()  { return active; }
-	public Timestamp Created() { return created; }
+	public long      Id()       { return Id; }
+	public String    Name()     { return name; }
+	public boolean   isActive() { return active; }
+	public Timestamp Created()  { return created; }
 }

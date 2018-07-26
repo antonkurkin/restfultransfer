@@ -17,12 +17,12 @@ public class ClientServlet {
     @GET
     @Path("/{clientId}")
     public Client Get(@PathParam("clientId") long clientId) throws Exception {
-    	return ClientDAO.Get(clientId);
+    	return (new ClientDAO()).Get(clientId);
     }
     
     @GET
     @Path("/list")
     public Vector<Client> GetAll() throws Exception {
-    	return ClientDAO.GetAll();
+    	return (new ClientDAO()).GetAll();
     }
 }

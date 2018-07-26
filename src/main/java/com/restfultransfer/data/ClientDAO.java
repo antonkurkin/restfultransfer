@@ -11,64 +11,23 @@ import java.lang.String;
 
 import java.util.Vector;
 
-public class ClientDAO extends H2Connector {
+public class ClientDAO extends LongIdObjectDAO<Client> {
+	@Override
+	public String TableName() { return "Clients"; }
 	
-	private static Client ClientByResultSet(ResultSet result) throws SQLException
-	{
+	@Override
+	protected Client ObjectByResultSet(ResultSet result) throws SQLException {
 		if (!result.next())
 			return null;
 		return new Client(
-				result.getLong("ClientId"),
+				result.getLong("Id"),
 				result.getString("Name"),
 				result.getBoolean("Active"),
 				result.getTimestamp("Created")
 				);
 	}
 	
-	public static Client Get(long clientId) throws Exception {
-		Connection connection = null;
-		PreparedStatement sqlStatement = null;
-		ResultSet result = null;
-		try {
-			connection = getConnection();
-			sqlStatement = connection.prepareStatement("SELECT * FROM Clients WHERE ClientId = ?");
-			sqlStatement.setLong(1, clientId);
-			result = sqlStatement.executeQuery();
-			
-			return ClientByResultSet(result);
-		} catch (SQLException e) {
-			throw new Exception("Can't get account from DB", e);
-		} finally {
-			DbUtils.closeQuietly(connection, sqlStatement, result);
-		}
-	}
-
-	
-	public static  Vector<Client> GetAll() throws Exception {
-		Connection connection = null;
-		PreparedStatement sqlStatement = null;
-		ResultSet result = null;
-		try {
-			connection = getConnection();
-			sqlStatement = connection.prepareStatement("SELECT * FROM Clients");
-			result = sqlStatement.executeQuery();
-
-			Vector<Client> clients = new Vector<Client>();
-			Client client = ClientByResultSet(result);
-			while (client != null)
-			{
-				clients.add(client);
-				client = ClientByResultSet(result);
-			}
-			return clients;
-		} catch (SQLException e) {
-			throw new Exception("Can't get account from DB", e);
-		} finally {
-			DbUtils.closeQuietly(connection, sqlStatement, result);
-		}
-	}
-	
-	public static Client Create(String name) throws Exception {
+	public Client Create(String name) throws Exception {
 		Connection connection = null;
 		PreparedStatement sqlStatement = null;
 		ResultSet result = null;
@@ -80,7 +39,7 @@ public class ClientDAO extends H2Connector {
 			if (rowCount == 0)
 				throw new Exception("Client wasn't created in DB");
 			result = sqlStatement.getResultSet();
-			return ClientByResultSet(result);
+			return ObjectByResultSet(result);
 		} catch (SQLException e) {
 			throw new Exception("Can't create client in DB", e);
 		} finally {
@@ -88,15 +47,15 @@ public class ClientDAO extends H2Connector {
 		}
 	}
 
-	public static void ChangeName(Client client, String newName) throws Exception {
+	public void ChangeName(Client client, String newName) throws Exception {
 		Connection connection = null;
 		PreparedStatement sqlStatement = null;
 		ResultSet result = null;
 		try {
 			connection = getConnection();
-			sqlStatement = connection.prepareStatement("UPDATE Clients SET Name = ? WHERE ClientId = ?");
+			sqlStatement = connection.prepareStatement("UPDATE Clients SET Name = ? WHERE Id = ?");
 			sqlStatement.setString(1, newName);
-			sqlStatement.setLong(2, client.ClientId());
+			sqlStatement.setLong(2, client.Id());
 			int rowCount = sqlStatement.executeUpdate();
 			if (rowCount == 0)
 				throw new Exception("Client name wasn't changed");
@@ -107,15 +66,15 @@ public class ClientDAO extends H2Connector {
 		}
 	}
 	
-	public static void SetActive(Client client, boolean active) throws Exception {
+	public void SetActive(Client client, boolean active) throws Exception {
 		Connection connection = null;
 		PreparedStatement sqlStatement = null;
 		ResultSet result = null;
 		try {
 			connection = getConnection();
-			sqlStatement = connection.prepareStatement("UPDATE Clients SET Active = ? WHERE ClientId = ?");
+			sqlStatement = connection.prepareStatement("UPDATE Clients SET Active = ? WHERE Id = ?");
 			sqlStatement.setBoolean(1, active);
-			sqlStatement.setLong(2, client.ClientId());
+			sqlStatement.setLong(2, client.Id());
 			int rowCount = sqlStatement.executeUpdate();
 			if (rowCount == 0)
 				throw new Exception("Client's active state wasn't changed in DB");
@@ -125,11 +84,12 @@ public class ClientDAO extends H2Connector {
 			DbUtils.closeQuietly(connection, sqlStatement, result);
 		}
 		
+		AccountDAO accDAO = new AccountDAO();
 		if (!active)
 		{
-			Vector<Account> accounts = AccountDAO.GetAll(client);
+			Vector<Account> accounts = accDAO.GetAll(client);
 			for (Account account : accounts)
-				AccountDAO.SetActive(account, active);
+				accDAO.SetActive(account, active);
 		}
 	}
 }
