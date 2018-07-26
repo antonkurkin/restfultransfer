@@ -1,21 +1,34 @@
 package com.restfultransfer;
 
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.glassfish.jersey.servlet.ServletContainer;
 
-public class App 
+import com.restfultransfer.data.H2Connector;
+import com.restfultransfer.servlet.*;
+
+public class App
 {
     public static void main( String[] args )
     {
-    	Server serv = new Server();
-        System.out.println( "Hello World!" );
-		try {
-			serv.start();
-			serv.join();
+    	Server server = null;
+    	try {
+	    	H2Connector.LoadTestDBFile("src/test/database.sql");
+	    	server = new Server(8080);
+	        ServletContextHandler servletHandler =
+	        		new ServletContextHandler(null, "/", ServletContextHandler.SESSIONS);
+	        servletHandler.addServlet(ServletContainer.class, "/*")
+	        	   .setInitParameter("jersey.config.server.provider.classnames",
+	        			   				AccountServlet.class.getCanonicalName());
+	        server.setHandler(servletHandler);
+			
+	        server.start();
+	        server.dumpStdErr();
+	        server.join();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
-			serv.destroy();
+			server.destroy();
 		}
     }
 }
