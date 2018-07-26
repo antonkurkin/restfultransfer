@@ -66,7 +66,7 @@ public class TransactionDAO extends LongIdObjectDAO<Transaction> {
 		BigDecimal amountTo = amountFrom;
 		BigDecimal amountFromNeg = amountFrom.negate();
 		if (accountFrom.Currency() != accountTo.Currency())
-			amountTo = ExchangeRateDAO.Get(accountFrom.Currency(), accountTo.Currency()).Exchange(amountTo);
+			amountTo = (new ExchangeRateDAO()).Get(accountFrom.Currency(), accountTo.Currency()).Exchange(amountTo);
 		
 		try {
 			connection = getConnection();

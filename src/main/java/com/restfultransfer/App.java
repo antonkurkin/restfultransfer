@@ -19,10 +19,11 @@ public class App
 	        ServletContextHandler servletHandler =
 	        		new ServletContextHandler(null, "/", ServletContextHandler.SESSIONS);
 	        servletHandler.addServlet(ServletContainer.class, "/*")
-	        	   .setInitParameter("jersey.config.server.provider.classnames",
-	        			                ClientServlet.class.getCanonicalName()  + "," +
-	        			   				AccountServlet.class.getCanonicalName() + "," +
-	        			   				TransactionServlet.class.getCanonicalName());
+	        		.setInitParameter("jersey.config.server.provider.classnames",
+	        						ClientServlet.class.getCanonicalName()      + "," +
+	        						AccountServlet.class.getCanonicalName()     + "," +
+	        						TransactionServlet.class.getCanonicalName() + "," +
+	        						ExchangeRateServlet.class.getCanonicalName());
 	        server.setHandler(servletHandler);
 			
 	        server.start();

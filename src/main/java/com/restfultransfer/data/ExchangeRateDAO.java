@@ -12,7 +12,7 @@ import java.util.Vector;
 
 public class ExchangeRateDAO extends H2Connector {
 
-	private static ExchangeRate ObjectByResultSet(ResultSet result) throws SQLException
+	private ExchangeRate ObjectByResultSet(ResultSet result) throws SQLException
 	{
 		if (!result.next())
 			return null;
@@ -23,7 +23,7 @@ public class ExchangeRateDAO extends H2Connector {
 				);
 	}
 	
-	static ExchangeRate Get(Currency currencyFrom, Currency currencyTo) throws Exception {
+	public ExchangeRate Get(Currency currencyFrom, Currency currencyTo) throws Exception {
 		Connection connection = null;
 		PreparedStatement sqlStatement = null;
 		ResultSet result = null;
