@@ -7,7 +7,7 @@ CREATE TABLE Clients (
   Id      LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
   Name    VARCHAR NOT NULL,
   Active  BOOLEAN DEFAULT(TRUE) NOT NULL,
-  Created DATETIME DEFAULT(getdate()) NOT NULL
+  Created DATETIME DEFAULT(CURRENT_TIMESTAMP) NOT NULL
 );
 
 /*
@@ -29,7 +29,7 @@ CREATE TABLE Accounts (
   Currency CHAR(3) NOT NULL,
   Balance  DECIMAL DEFAULT(0) NOT NULL,
   Active   BOOLEAN DEFAULT(TRUE) NOT NULL,
-  Created  DATETIME DEFAULT(getdate()) NOT NULL,
+  Created  DATETIME DEFAULT(CURRENT_TIMESTAMP) NOT NULL,
   FOREIGN KEY (ClientId) REFERENCES Clients(Id)
   -- CHECK(ClientActive(Id))
 );
@@ -60,7 +60,7 @@ CREATE TABLE Transactions (
   AccountIdTo LONG,             -- NULL for external transfers
   Amount      DECIMAL NOT NULL,
   AmountTo    DECIMAL DEFAULT(0) NOT NULL,
-  Created     DATETIME DEFAULT(getdate()) NOT NULL,
+  Created     DATETIME DEFAULT(CURRENT_TIMESTAMP) NOT NULL,
   ResultCode  INT DEFAULT(-1) NOT NULL,
   FOREIGN KEY (AccountId) REFERENCES Accounts(Id),
   FOREIGN KEY (AccountIdTo) REFERENCES Accounts(Id),
