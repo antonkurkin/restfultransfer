@@ -88,4 +88,21 @@ public class ExchangeRateDAO extends H2Connector {
 			DbUtils.closeQuietly(connection, sqlStatement, result);
 		}
 	}
+
+	public int Delete(Currency currencyFrom, Currency currencyTo) throws Exception {
+		Connection connection = null;
+		PreparedStatement sqlStatement = null;
+		ResultSet result = null;
+		try {
+			connection = getConnection();
+			sqlStatement = connection.prepareStatement("DELETE FROM ExchangeRates WHERE CurrencyFrom = ? AND CurrencyTo = ?", Statement.RETURN_GENERATED_KEYS);
+			sqlStatement.setString(1, currencyFrom.getCurrencyCode());
+			sqlStatement.setString(2, currencyTo.getCurrencyCode());
+			return sqlStatement.executeUpdate();
+		} catch (SQLException e) {
+			throw new Exception("Can't delete exchange rate from DB", e);
+		} finally {
+			DbUtils.closeQuietly(connection, sqlStatement, result);
+		}
+	}
 }
