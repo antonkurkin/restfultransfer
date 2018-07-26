@@ -47,7 +47,7 @@ AS BEGIN
 END;
 */
 
-CREATE TABLE ExchangeRatios (
+CREATE TABLE ExchangeRates (
   CurrencyFrom CHAR(3) NOT NULL,
   CurrencyTo   CHAR(3) NOT NULL,
   Rate         FLOAT NOT NULL,
