@@ -9,7 +9,7 @@ import java.sql.Timestamp;
 
 public class Account {
     @JsonProperty()
-	private long accountId;
+	private long Id;
     @JsonProperty()
 	private long clientId;
     @JsonProperty()
@@ -22,13 +22,13 @@ public class Account {
 	private Timestamp created;
 	
 	public Account(
-			long accountId,
+			long Id,
 			long clientId,
 			Currency currency,
 			BigDecimal balance,
 			boolean active,
 			Timestamp created) {
-		this.accountId = accountId;
+		this.Id = Id;
 		this.clientId = clientId;
 		this.currency = currency;
 		this.balance = balance;
@@ -36,13 +36,13 @@ public class Account {
 		this.created = created;
 	}
 	
-	public long AccountId()     { return accountId; }
-	public long ClientId()      { return clientId; }
-	public Currency Currency()  { return currency; }
-	public BigDecimal Balance() { return balance; }
-	public boolean isActive()   { return active; }
-	public Timestamp Created()  { return created; }
+	public long       Id()       { return Id; }
+	public long       ClientId() { return clientId; }
+	public Currency   Currency() { return currency; }
+	public BigDecimal Balance()  { return balance; }
+	public boolean    isActive() { return active; }
+	public Timestamp  Created()  { return created; }
 
-	public void Deactivate()    { active = false; }
+	public void Deactivate()     { active = false; }
 	public void SetNewBalance(BigDecimal balance) { this.balance = balance; }
 }

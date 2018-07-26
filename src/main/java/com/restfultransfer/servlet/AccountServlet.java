@@ -17,12 +17,12 @@ public class AccountServlet {
     @GET
     @Path("/{accountId}")
     public Account Get(@PathParam("accountId") long accountId) throws Exception {
-    	return AccountDAO.Get(accountId);
+    	return (new AccountDAO()).Get(accountId);
     }
     
     @GET
     @Path("/list")
     public Vector<Account> GetAll() throws Exception {
-    	return AccountDAO.GetAll(null);
+    	return (new AccountDAO()).GetAll();
     }
 }

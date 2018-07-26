@@ -10,16 +10,17 @@ import org.apache.commons.dbutils.DbUtils;
 import java.math.BigDecimal;
 
 import java.util.Currency;
-import java.util.Vector;
 
-public class AccountDAO extends H2Connector {
+public class AccountDAO extends LongIdObjectDAO<Account> {
+	@Override
+	public String TableName() { return "Accounts"; }
 
-	private static Account AccountByResultSet(ResultSet result) throws SQLException
-	{
+	@Override
+	protected Account ObjectByResultSet(ResultSet result) throws SQLException {
 		if (!result.next())
 			return null;
 		return new Account(
-				result.getLong("AccountId"),
+				result.getLong("Id"),
 				result.getLong("ClientId"),
 				Currency.getInstance(result.getString("Currency")),
 				result.getBigDecimal("Balance"),
@@ -28,80 +29,20 @@ public class AccountDAO extends H2Connector {
 				);
 	}
 	
-	private static Account Get(Connection connection, long accountId, boolean forUpdate) throws SQLException {
-		PreparedStatement sqlStatement = null;
-		ResultSet result = null;
-		try {
-			if (forUpdate)
-				sqlStatement = connection.prepareStatement("SELECT * FROM Accounts WHERE AccountId = ? FOR UPDATE");
-			else
-				sqlStatement = connection.prepareStatement("SELECT * FROM Accounts WHERE AccountId = ?");
-			sqlStatement.setLong(1, accountId);
-			result = sqlStatement.executeQuery();
-			
-			return AccountByResultSet(result);
-		} finally {
-			DbUtils.closeQuietly(sqlStatement);
-			DbUtils.closeQuietly(result);
-		}
-	}
-
-	public static Account Get(long accountId) throws Exception {
-		Connection connection = null;
-		try {
-			connection = getConnection();
-			return Get(connection, accountId, false);
-		} catch (SQLException e) {
-			throw new Exception("Can't get account from DB", e);
-		} finally {
-			DbUtils.closeQuietly(connection);
-		}
-	}
-
-	public static Vector<Account> GetAll(Client client) throws Exception {
+	public Account Create(Client client, Currency currency) throws Exception {
 		Connection connection = null;
 		PreparedStatement sqlStatement = null;
 		ResultSet result = null;
 		try {
 			connection = getConnection();
-			if (client != null)
-			{
-				sqlStatement = connection.prepareStatement("SELECT * FROM Accounts WHERE ClientId = ?");
-				sqlStatement.setLong(1, client.ClientId());
-			}
-			else
-				sqlStatement = connection.prepareStatement("SELECT * FROM Accounts");
-			result = sqlStatement.executeQuery();
-			
-			Vector<Account> accounts = new Vector<Account>();
-			Account account = AccountByResultSet(result);
-			while (account != null)
-			{
-				accounts.add(account);
-				account = AccountByResultSet(result);
-			}
-			return accounts;
-		} catch (SQLException e) {
-			throw new Exception("Can't get account from DB", e);
-		} finally {
-			DbUtils.closeQuietly(connection, sqlStatement, result);
-		}
-	}
-	
-	public static Account Create(Client client, Currency currency) throws Exception {
-		Connection connection = null;
-		PreparedStatement sqlStatement = null;
-		ResultSet result = null;
-		try {
-			connection = getConnection();
-			sqlStatement = connection.prepareStatement("INSERT INTO Accounts (ClientId, CurrencyCode, Balance) VALUES (?, ?, ?)");
-			sqlStatement.setLong(1, client.ClientId());
+			sqlStatement = connection.prepareStatement("INSERT INTO " + TableName() + " (ClientId, CurrencyCode, Balance) VALUES (?, ?, ?)");
+			sqlStatement.setLong(1, client.Id());
 			sqlStatement.setString(2, currency.getCurrencyCode());
 			int rowCount = sqlStatement.executeUpdate();
 			if (rowCount == 0)
 				throw new Exception("Account wasn't created in DB");
 			result = sqlStatement.getResultSet();
-			return AccountByResultSet(result);
+			return ObjectByResultSet(result);
 			
 		} catch (SQLException e) {
 			throw new Exception("Can't create account in DB", e);
@@ -110,15 +51,15 @@ public class AccountDAO extends H2Connector {
 		}
 	}
 	
-	public static void SetActive(Account account, boolean active) throws Exception {
+	public void SetActive(Account account, boolean active) throws Exception {
 		Connection connection = null;
 		PreparedStatement sqlStatement = null;
 		ResultSet result = null;
 		try {
 			connection = getConnection();
-			sqlStatement = connection.prepareStatement("UPDATE Accounts SET Active = ? WHERE AccountId = ?");
+			sqlStatement = connection.prepareStatement("UPDATE Accounts SET Active = ? WHERE Id = ?");
 			sqlStatement.setBoolean(1, active);
-			sqlStatement.setLong(2, account.AccountId());
+			sqlStatement.setLong(2, account.Id());
 			int rowCount = sqlStatement.executeUpdate();
 			if (rowCount == 0)
 				throw new Exception("Account wasn't disabled in DB");
@@ -129,15 +70,15 @@ public class AccountDAO extends H2Connector {
 		}
 	}
 
-	private static void UpdateBalance(Account account, BigDecimal newBalance) throws Exception {
+	private void UpdateBalance(Account account, BigDecimal newBalance) throws Exception {
 		Connection connection = null;
 		PreparedStatement sqlStatement = null;
 		ResultSet result = null;
 		try {
 			connection = getConnection();
-			sqlStatement = connection.prepareStatement("UPDATE Accounts SET Balance = ? WHERE AccountId = ?");
+			sqlStatement = connection.prepareStatement("UPDATE Accounts SET Balance = ? WHERE Id = ?");
 			sqlStatement.setBigDecimal(1, newBalance);
-			sqlStatement.setLong(2, account.AccountId());
+			sqlStatement.setLong(2, account.Id());
 			int rowCount = sqlStatement.executeUpdate();
 			if (rowCount == 0)
 				throw new Exception("Account's balance wasn't changed");
@@ -148,7 +89,7 @@ public class AccountDAO extends H2Connector {
 		}
 	}
 	
-	public static int ExecuteTransaction(Transaction transaction) throws Exception {
+	public int ExecuteTransaction(Transaction transaction) throws Exception {
 		Connection connection = null;
 		PreparedStatement sqlStatement = null;
 		ResultSet result = null;
