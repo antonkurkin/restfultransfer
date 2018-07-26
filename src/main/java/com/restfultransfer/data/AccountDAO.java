@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import org.apache.commons.dbutils.DbUtils;
 
@@ -30,21 +31,22 @@ public class AccountDAO extends LongIdObjectDAO<Account> {
 				);
 	}
 	
-	public Account Create(Client client, Currency currency) throws Exception {
+	public Account Create(long clientId, Currency currency) throws Exception {
 		Connection connection = null;
 		PreparedStatement sqlStatement = null;
 		ResultSet result = null;
 		try {
 			connection = getConnection();
-			sqlStatement = connection.prepareStatement("INSERT INTO " + TableName() + " (ClientId, CurrencyCode, Balance) VALUES (?, ?, ?)");
-			sqlStatement.setLong(1, client.Id());
+			sqlStatement = connection.prepareStatement("INSERT INTO " + TableName() + " (ClientId, Currency) VALUES (?, ?)", Statement.RETURN_GENERATED_KEYS);
+			sqlStatement.setLong(1, clientId);
 			sqlStatement.setString(2, currency.getCurrencyCode());
 			int rowCount = sqlStatement.executeUpdate();
 			if (rowCount == 0)
 				throw new Exception("Account wasn't created in DB");
-			result = sqlStatement.getResultSet();
-			return ObjectByResultSet(result);
-			
+			result = sqlStatement.getGeneratedKeys();
+			if (!result.next())
+				throw new Exception("Can't receive account Id from DB");
+			return Get(connection, result.getLong(1), false);
 		} catch (SQLException e) {
 			throw new Exception("Can't create account in DB", e);
 		} finally {
