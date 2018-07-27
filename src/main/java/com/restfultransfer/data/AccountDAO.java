@@ -90,7 +90,7 @@ public class AccountDAO extends LongIdObjectDAO<Account> {
 			Account account = Get(connection, transaction.AccountId(), true);
 			if (account == null)
 				return Transaction.State.TRANSACTION_ACCOUNT_NOT_FOUND;
-			if (account.Balance().compareTo(transaction.Amount().negate()) > 0)
+			if (account.Balance().compareTo(transaction.Amount().negate()) < 0)
 				return Transaction.State.TRANSACTION_NOT_ENOUGH;
 			if (!account.isActive())
 				return Transaction.State.TRANSACTION_ACCOUNT_INACTIVE;
