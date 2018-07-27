@@ -29,6 +29,6 @@ public class ExchangeRate {
 	public double Rate()           { return rate; }
 	
 	public BigDecimal Exchange(BigDecimal amount) {
-		return amount.multiply(amount);
+		return BigDecimal.valueOf(amount.doubleValue() * rate);
 	}
 }
