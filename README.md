@@ -47,16 +47,25 @@ curl -X DELETE -i http://localhost:8080/exchange/delete/{currencyFrom},{currency
     
 ### Legend:
 {clientId}, {accountId}, {transactionId} are long int
+
 {name} is string
+
 {currency} is three-character ISO 4217 currency code
+
 {amount} is big decimal
+
 
 ### Transaction notes:
 External transaction is always in currency of account
+
 Internal transaction get amount in currency of sending account and if neded automatically exchanges to currency of receiving account
+
 Transaction creation and execution are two separate requests
+
 Exchange rate is fixed on transaction creation
+
 ResultCode of transaction execution is mapped to int:
+
 - -1 = TRANSACTION_PENDING
 -  0 = TRANSACTION_OK
 -  1 = TRANSACTION_ACCOUNT_NOT_FOUND
