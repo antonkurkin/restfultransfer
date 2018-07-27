@@ -72,62 +72,45 @@ public class AccountDAO extends LongIdObjectDAO<Account> {
 		}
 	}
 
-	private void UpdateBalance(Account account, BigDecimal newBalance) throws Exception {
-		Connection connection = null;
+	private int UpdateBalance(Connection connection, Account account, BigDecimal newBalance) throws SQLException {
 		PreparedStatement sqlStatement = null;
-		ResultSet result = null;
 		try {
-			connection = getConnection();
 			sqlStatement = connection.prepareStatement("UPDATE Accounts SET Balance = ? WHERE Id = ?");
 			sqlStatement.setBigDecimal(1, newBalance);
 			sqlStatement.setLong(2, account.Id());
-			int rowCount = sqlStatement.executeUpdate();
-			if (rowCount == 0)
-				throw new Exception("Account's balance wasn't changed");
-		} catch (SQLException e) {
-			throw new Exception("Can't change Account's balance in DB", e);
+			return sqlStatement.executeUpdate();
 		} finally {
-			DbUtils.closeQuietly(connection, sqlStatement, result);
+			DbUtils.closeQuietly(sqlStatement);
 		}
 	}
 	
-	public int ExecuteTransaction(Transaction transaction) throws Exception {
-		Connection connection = null;
+	public Transaction.State ExecuteTransaction(Connection connection, Transaction transaction) throws SQLException {
 		PreparedStatement sqlStatement = null;
-		ResultSet result = null;
 		try {
-			connection = getConnection();
-			connection.setAutoCommit(false);
-			
 			Account account = Get(connection, transaction.AccountId(), true);
+			if (account == null)
+				return Transaction.State.TRANSACTION_ACCOUNT_NOT_FOUND;
 			if (account.Balance().compareTo(transaction.Amount().negate()) > 0)
-			{
-				connection.rollback();
-				return 1;
-			}
+				return Transaction.State.TRANSACTION_NOT_ENOUGH;
 			if (!account.isActive())
-			{
-				connection.rollback();
-				return 2;
-			}
+				return Transaction.State.TRANSACTION_ACCOUNT_INACTIVE;
+			int rowCount = 0;
+			int mustUpdate = 1;
 			if (transaction.AccountIdTo() != 0) {
+				mustUpdate = 2;
 				Account accountTo = Get(connection, transaction.AccountIdTo(), true);
+				if (accountTo == null)
+					return Transaction.State.TRANSACTION_ACCOUNT2_NOT_FOUND;
 				if (!accountTo.isActive())
-				{
-					connection.rollback();
-					return 3;
-				}
-				UpdateBalance(accountTo, accountTo.Balance().add(transaction.AmountTo()));
+					return Transaction.State.TRANSACTION_ACCOUNT2_INACTIVE;
+				rowCount += UpdateBalance(connection, accountTo, accountTo.Balance().add(transaction.AmountTo()));
 			}
-			UpdateBalance(account, account.Balance().add(transaction.Amount()));
-			connection.commit();
-			return 0;
-		} catch (SQLException e) {
-			if (connection != null)
-				connection.rollback();
-			throw new Exception("Can't execute transaction in DB", e);
+			rowCount += UpdateBalance(connection, account, account.Balance().add(transaction.Amount()));
+			if (rowCount != mustUpdate)
+				return Transaction.State.TRANSACTION_BALANCE_UPDATE_FAIL;
+			return Transaction.State.TRANSACTION_OK;
 		} finally {
-			DbUtils.closeQuietly(connection, sqlStatement, result);
+			DbUtils.closeQuietly(sqlStatement);
 		}
 	}
 	

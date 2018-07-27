@@ -55,11 +55,11 @@ public class ClientServlet {
     	ClientDAO clientDAO = new ClientDAO();
     	Client client = clientDAO.Get(clientId);
     	if (client == null)
-        	return Response.status(Response.Status.NO_CONTENT).build();
+        	return Response.status(Response.Status.NOT_FOUND).build();
     	int changed = clientDAO.ChangeName(client, newName);
     	if (changed != 1)
-        	return Response.status(Response.Status.NO_CONTENT).build();
-    	return Response.status(Response.Status.OK).build();
+        	return Response.status(Response.Status.NOT_FOUND).build();
+    	return Response.status(Response.Status.NO_CONTENT).build();
     }
     
     @PUT
@@ -67,11 +67,11 @@ public class ClientServlet {
     public Response Deactivate(@PathParam("clientId") long clientId) throws Exception {
     	int changed = (new ClientDAO()).SetActive(clientId, false);
     	if (changed != 1)
-        	return Response.status(Response.Status.NO_CONTENT).build();
+        	return Response.status(Response.Status.NOT_FOUND).build();
 		AccountDAO accountDAO = new AccountDAO();
 		for (Account account : accountDAO.GetAllByClient(clientId))
 			accountDAO.SetActive(account.Id(), false);
-    	return Response.status(Response.Status.OK).build();
+    	return Response.status(Response.Status.NO_CONTENT).build();
     }
 
     @PUT
@@ -79,7 +79,7 @@ public class ClientServlet {
     public Response Activate(@PathParam("clientId") long clientId) throws Exception {
     	int changed = (new ClientDAO()).SetActive(clientId, true);
     	if (changed != 1)
-        	return Response.status(Response.Status.NO_CONTENT).build();
-    	return Response.status(Response.Status.OK).build();
+        	return Response.status(Response.Status.NOT_FOUND).build();
+    	return Response.status(Response.Status.NO_CONTENT).build();
     }
 }

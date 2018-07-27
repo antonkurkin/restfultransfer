@@ -6,6 +6,22 @@ import java.sql.Timestamp;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Transaction {
+	public enum State
+	{
+		TRANSACTION_PENDING(-1),
+		TRANSACTION_OK(0),
+		TRANSACTION_ACCOUNT_NOT_FOUND(1),
+		TRANSACTION_ACCOUNT2_NOT_FOUND(2),
+		TRANSACTION_ACCOUNT_INACTIVE(3),
+		TRANSACTION_ACCOUNT2_INACTIVE(4),
+		TRANSACTION_NOT_ENOUGH(5),
+		TRANSACTION_BALANCE_UPDATE_FAIL(6),
+		TRANSACTION_DB_PROBLEM(7);
+
+	    private final int code;
+	    private State(int code) { this.code = code; }
+	    public int Code() { return code; }
+	}
 
     @JsonProperty()
 	private long Id;
