@@ -53,11 +53,7 @@ public class ClientServlet {
     @PUT
     @Path("/{clientId}/setName/{newName}")
     public Response SetName(@PathParam("clientId") long clientId, @PathParam("newName") String newName) throws SQLException {
-    	ClientDAO clientDAO = new ClientDAO();
-    	Client client = clientDAO.Get(clientId);
-    	if (client == null)
-        	return Response.status(Response.Status.NOT_FOUND).build();
-    	int changed = clientDAO.ChangeName(client, newName);
+    	int changed = (new ClientDAO()).ChangeName(clientId, newName);
     	if (changed != 1)
         	return Response.status(Response.Status.NOT_FOUND).build();
     	return Response.status(Response.Status.NO_CONTENT).build();
