@@ -19,10 +19,6 @@ public class H2Connector {
 		return DriverManager.getConnection("jdbc:h2:mem:restfultransfer;DB_CLOSE_DELAY=-1");
 	}
 	
-	public static void CloseConnection(Connection connection) {
-		DbUtils.closeQuietly(connection);
-	}
-	
 	public static void LoadSQLFile(String filename) throws Exception {
 		Connection connection = null;
 		try {

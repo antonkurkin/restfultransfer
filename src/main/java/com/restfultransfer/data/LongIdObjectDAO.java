@@ -121,6 +121,10 @@ public abstract class LongIdObjectDAO<T> extends H2Connector {
 				return null;
 			return Get(connection, result.getLong(1), false);
 		} catch (SQLException e) {
+			if (	e.getErrorCode() == org.h2.api.ErrorCode.REFERENTIAL_INTEGRITY_VIOLATED_PARENT_MISSING_1 ||
+					e.getErrorCode() == org.h2.api.ErrorCode.CHECK_CONSTRAINT_VIOLATED_1 )
+				return null;
+			System.out.println(e.getErrorCode());
 			throw new SQLException("Can't create object in table " + TableName() , e);
 		} finally {
 			DbUtils.closeQuietly(connection, sqlStatement, result);

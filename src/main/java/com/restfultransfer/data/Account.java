@@ -42,7 +42,4 @@ public class Account {
 	public BigDecimal Balance()  { return balance; }
 	public boolean    isActive() { return active; }
 	public Timestamp  Created()  { return created; }
-
-	public void Deactivate()     { active = false; }
-	public void SetNewBalance(BigDecimal balance) { this.balance = balance; }
 }
