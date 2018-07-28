@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import com.restfultransfer.data.Account;
 import com.restfultransfer.data.AccountDAO;
 
-class AccountDAOTests extends DBBeforeLoad{
+class AccountDAOTests extends DBBeforeTest{
 
 	AccountDAO accountDAO = new AccountDAO();
 	

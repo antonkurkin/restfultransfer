@@ -7,7 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 
 import com.restfultransfer.data.H2Connector;
 
-public class DBBeforeLoad {
+public class DBBeforeTest {
 	
 	@BeforeAll
 	public static void InitDatabase() {

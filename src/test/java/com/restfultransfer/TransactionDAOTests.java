@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import com.restfultransfer.data.Transaction;
 import com.restfultransfer.data.TransactionDAO;
 
-class TransactionDAOTests extends DBBeforeLoad{
+class TransactionDAOTests extends DBBeforeTest{
 
 	TransactionDAO transactionDAO = new TransactionDAO();
 	

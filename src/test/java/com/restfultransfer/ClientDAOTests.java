@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import com.restfultransfer.data.Client;
 import com.restfultransfer.data.ClientDAO;
 
-class ClientDAOTests extends DBBeforeLoad {
+class ClientDAOTests extends DBBeforeTest {
 
 	ClientDAO clientDAO = new ClientDAO();
 	
