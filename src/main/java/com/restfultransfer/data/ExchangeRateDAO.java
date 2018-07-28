@@ -70,7 +70,6 @@ public class ExchangeRateDAO extends H2Connector {
 	public ExchangeRate Create(Currency currencyFrom, Currency currencyTo, double rate) throws SQLException {
 		Connection connection = null;
 		PreparedStatement sqlStatement = null;
-		ResultSet result = null;
 		try {
 			connection = getConnection();
 			sqlStatement = connection.prepareStatement("INSERT INTO ExchangeRates (CurrencyFrom, CurrencyTo, Rate) VALUES (?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
@@ -80,13 +79,13 @@ public class ExchangeRateDAO extends H2Connector {
 			int rowCount = sqlStatement.executeUpdate();
 			if (rowCount == 0)
 				return null;
-			result = sqlStatement.getGeneratedKeys();
 			
 			return Get(currencyFrom, currencyTo);
 		} catch (SQLException e) {
 			throw new SQLException("Can't create exchange rate in DB", e);
 		} finally {
-			DbUtils.closeQuietly(connection, sqlStatement, result);
+			DbUtils.closeQuietly(connection);
+			DbUtils.closeQuietly(sqlStatement);
 		}
 	}
 

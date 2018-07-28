@@ -117,6 +117,8 @@ public abstract class LongIdObjectDAO<T> extends H2Connector {
 			if (rowCount == 0)
 				return null;
 			result = sqlStatement.getGeneratedKeys();
+			if (!result.next())
+				return null;
 			return Get(connection, result.getLong(1), false);
 		} catch (SQLException e) {
 			throw new SQLException("Can't create object in table " + TableName() , e);
