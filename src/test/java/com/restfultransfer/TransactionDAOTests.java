@@ -101,6 +101,8 @@ class TransactionDAOTests extends DBBeforeLoad{
 	@Test
 	public void CreateFailedTransaction() { //check database constraints
 		try {
+			int before = transactionDAO.GetAll().size();
+			
 			Transaction transaction = transactionDAO.CreateExternal(99, BigDecimal.valueOf(10));
 			assertEquals(null, transaction);
 			
@@ -124,6 +126,8 @@ class TransactionDAOTests extends DBBeforeLoad{
 			
 			transaction = transactionDAO.CreateInternal(1, 2, BigDecimal.valueOf(-10), BigDecimal.ZERO);
 			assertEquals(null, transaction);
+			
+			assertEquals(before, transactionDAO.GetAll().size());
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("SQL exception");
