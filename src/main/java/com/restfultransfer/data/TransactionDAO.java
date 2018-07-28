@@ -92,16 +92,18 @@ public class TransactionDAO extends LongIdObjectDAO<Transaction> {
 		return Create(new ValuesFieldsIntenal(accountIdFrom, accountIdTo, amountFrom, amountTo));
 	}
 
-	private int SetResultCode(Connection connection, Transaction transaction, Transaction.State result) throws SQLException {
-		PreparedStatement sqlStatement = null;
-		try {
-			sqlStatement = connection.prepareStatement("UPDATE Transactions SET ResultCode = ? WHERE Id = ?");
-			sqlStatement.setInt(1, result.Code());
-			sqlStatement.setLong(2, transaction.Id());
-			return sqlStatement.executeUpdate();
-		} finally {
-			DbUtils.closeQuietly(sqlStatement);
+	private class WhereInt extends WhereField {
+		int i;
+		public WhereInt(String FieldName, int i) {
+			super(FieldName);
+			this.i = i;
 		}
+		void SetField(int n, PreparedStatement sqlStatement) throws SQLException { sqlStatement.setInt(n, i); }
+	}
+
+	private int SetResultCode(Connection connection, Transaction transaction, Transaction.State result) throws SQLException {
+		WhereInt resultSetter = new WhereInt("ResultCode", result.Code());
+		return ChangeField(connection, transaction.Id(), resultSetter);
 	}
 	
 	public enum ExecutionResult {

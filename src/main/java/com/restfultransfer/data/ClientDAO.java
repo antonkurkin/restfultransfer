@@ -48,47 +48,35 @@ public class ClientDAO extends LongIdObjectDAO<Client> {
 		return Create(new ValuesFieldsClient(name));
 	}
 
-	public int ChangeName(long clientId, String newName) throws SQLException {
-		Connection connection = null;
-		PreparedStatement sqlStatement = null;
-		ResultSet result = null;
-		try {
-			connection = getConnection();
-			sqlStatement = connection.prepareStatement("UPDATE Clients SET Name = ? WHERE Id = ?");
-			sqlStatement.setString(1, newName);
-			sqlStatement.setLong(2, clientId);
-			return sqlStatement.executeUpdate();
-		} catch (SQLException e) {
-			throw new SQLException("Can't change Client's name in DB", e);
-		} finally {
-			DbUtils.closeQuietly(connection, sqlStatement, result);
-		}
-	}
-	
-	public int SetActive(long clientId, boolean active) throws SQLException {
-		Connection connection = null;
-		PreparedStatement sqlStatement = null;
-		ResultSet result = null;
-		try {
-			connection = getConnection();
-			sqlStatement = connection.prepareStatement("UPDATE Clients SET Active = ? WHERE Id = ?");
-			sqlStatement.setBoolean(1, active);
-			sqlStatement.setLong(2, clientId);
-			return sqlStatement.executeUpdate();
-		} catch (SQLException e) {
-			throw new SQLException("Can't change active state of Client in DB", e);
-		} finally {
-			DbUtils.closeQuietly(connection, sqlStatement, result);
-		}
-	}
-
-	public class WhereString extends WhereField {
+	private class WhereString extends WhereField {
 		String s;
 		public WhereString(String FieldName, String s) {
 			super(FieldName);
 			this.s = s;
 		}
 		void SetField(int n, PreparedStatement sqlStatement) throws SQLException { sqlStatement.setString(n, s); }
+	}
+
+	public int ChangeName(long clientId, String newName) throws SQLException {
+		Connection connection = null;
+		try {
+			connection = getConnection();
+			WhereString newNameSetter = new WhereString("Name", newName);
+			return ChangeField(connection, clientId, newNameSetter);
+		} finally {
+			DbUtils.closeQuietly(connection);
+		}
+	}
+
+	public int SetActive(long clientId, boolean active) throws SQLException {
+		Connection connection = null;
+		try {
+			connection = getConnection();
+			WhereBoolean activeSetter = new WhereBoolean("Active", active);
+			return ChangeField(connection, clientId, activeSetter);
+		} finally {
+			DbUtils.closeQuietly(connection);
+		}
 	}
 
 	public Vector<Client> GetAllByName(String name) throws SQLException {

@@ -43,6 +43,9 @@ class ClientDAOTests extends DBBeforeLoad {
 
 			changed = clientDAO.ChangeName(99, "dmitry");
 			assertEquals(0, changed);
+
+			changed = clientDAO.ChangeName(1, "");
+			assertEquals(0, changed);
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("SQL exception");
@@ -102,6 +105,9 @@ class ClientDAOTests extends DBBeforeLoad {
 
 			clientGet = clientDAO.Get(1);
 			assertNotEquals(clientGet.Created(), clientNew.Created());
+			
+			clientNew = clientDAO.Create("");
+			assertEquals(null, clientNew);
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("SQL exception");

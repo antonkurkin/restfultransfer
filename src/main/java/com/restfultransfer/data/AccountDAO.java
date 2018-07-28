@@ -72,16 +72,18 @@ public class AccountDAO extends LongIdObjectDAO<Account> {
 		}
 	}
 
-	private int UpdateBalance(Connection connection, Account account, BigDecimal newBalance) throws SQLException {
-		PreparedStatement sqlStatement = null;
-		try {
-			sqlStatement = connection.prepareStatement("UPDATE Accounts SET Balance = ? WHERE Id = ?");
-			sqlStatement.setBigDecimal(1, newBalance);
-			sqlStatement.setLong(2, account.Id());
-			return sqlStatement.executeUpdate();
-		} finally {
-			DbUtils.closeQuietly(sqlStatement);
+	private class WhereBigDecimal extends WhereField {
+		BigDecimal bd;
+		public WhereBigDecimal(String FieldName, BigDecimal bd) {
+			super(FieldName);
+			this.bd = bd;
 		}
+		void SetField(int n, PreparedStatement sqlStatement) throws SQLException { sqlStatement.setBigDecimal(n, bd); }
+	}
+
+	private int UpdateBalance(Connection connection, Account account, BigDecimal newBalance) throws SQLException {
+		WhereBigDecimal balanceSetter = new WhereBigDecimal("Balance", newBalance);
+		return ChangeField(connection, account.Id(), balanceSetter);
 	}
 	
 	public Transaction.State ExecuteTransaction(Connection connection, Transaction transaction) throws SQLException {

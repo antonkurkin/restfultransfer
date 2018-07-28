@@ -45,7 +45,7 @@ public abstract class LongIdObjectDAO<T> extends H2Connector {
 		}
 	}
 
-	public abstract class WhereField {
+	protected abstract class WhereField {
 		public final String FieldName;
 		public WhereField(String FieldName) {
 			this.FieldName = FieldName;
@@ -53,7 +53,7 @@ public abstract class LongIdObjectDAO<T> extends H2Connector {
 		abstract void SetField(int n, PreparedStatement sqlStatement) throws SQLException;
 	}
 
-	public class WhereLong extends WhereField {
+	protected class WhereLong extends WhereField {
 		long l;
 		public WhereLong(String FieldName, long l) {
 			super(FieldName);
@@ -62,6 +62,15 @@ public abstract class LongIdObjectDAO<T> extends H2Connector {
 		void SetField(int n, PreparedStatement sqlStatement) throws SQLException { sqlStatement.setLong(n, l); }
 	}
 
+	protected class WhereBoolean extends WhereField {
+		boolean b;
+		public WhereBoolean(String FieldName, boolean b) {
+			super(FieldName);
+			this.b = b;
+		}
+		void SetField(int n, PreparedStatement sqlStatement) throws SQLException { sqlStatement.setBoolean(n, b); }
+	}
+	
 	protected Vector<T> GetAll(WhereField where) throws SQLException {
 		Connection connection = null;
 		PreparedStatement sqlStatement = null;
@@ -96,8 +105,28 @@ public abstract class LongIdObjectDAO<T> extends H2Connector {
 		return GetAll(null);
 	}
 
+	protected int ChangeField(Connection connection, long id, WhereField change) throws SQLException {
+		PreparedStatement sqlStatement = null;
+		ResultSet result = null;
+		try {
+			connection = getConnection();
+			sqlStatement = connection.prepareStatement("UPDATE Clients SET " + change.FieldName + " = ? WHERE Id = ?");
+			change.SetField(1, sqlStatement);
+			sqlStatement.setLong(2, id);
+			return sqlStatement.executeUpdate();
+		} catch (SQLException e) {
+			if (	e.getErrorCode() == org.h2.api.ErrorCode.REFERENTIAL_INTEGRITY_VIOLATED_PARENT_MISSING_1 ||
+					e.getErrorCode() == org.h2.api.ErrorCode.CHECK_CONSTRAINT_VIOLATED_1 )
+				return 0;
+			throw new SQLException("Can't change object in table " + TableName() , e);
+		} finally {
+			DbUtils.closeQuietly(sqlStatement);
+			DbUtils.closeQuietly(result);
+		}
+	}
+
 	abstract class ValuesFields {
-		public String GetRequest() {
+		public String GetRequest() { //build string "(Field1, Field2, ... FieldN) VALUES (?, ?, ... ?)"
 			StringBuilder builderNames = new StringBuilder();
 			StringBuilder builderValues = new StringBuilder();
 			builderNames.append('(');
@@ -141,7 +170,6 @@ public abstract class LongIdObjectDAO<T> extends H2Connector {
 			if (	e.getErrorCode() == org.h2.api.ErrorCode.REFERENTIAL_INTEGRITY_VIOLATED_PARENT_MISSING_1 ||
 					e.getErrorCode() == org.h2.api.ErrorCode.CHECK_CONSTRAINT_VIOLATED_1 )
 				return null;
-			System.out.println(e.getErrorCode());
 			throw new SQLException("Can't create object in table " + TableName() , e);
 		} finally {
 			DbUtils.closeQuietly(connection, sqlStatement, result);
