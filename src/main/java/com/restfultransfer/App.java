@@ -27,7 +27,6 @@ public class App
 	        server.setHandler(servletHandler);
 			
 	        server.start();
-	        server.dumpStdErr();
 	        server.join();
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -110,7 +110,7 @@ public abstract class LongIdObjectDAO<T> extends H2Connector {
 		ResultSet result = null;
 		try {
 			connection = getConnection();
-			sqlStatement = connection.prepareStatement("UPDATE Clients SET " + change.FieldName + " = ? WHERE Id = ?");
+			sqlStatement = connection.prepareStatement("UPDATE " + TableName() + " SET " + change.FieldName + " = ? WHERE Id = ?");
 			change.SetField(1, sqlStatement);
 			sqlStatement.setLong(2, id);
 			return sqlStatement.executeUpdate();
@@ -118,7 +118,7 @@ public abstract class LongIdObjectDAO<T> extends H2Connector {
 			if (	e.getErrorCode() == org.h2.api.ErrorCode.REFERENTIAL_INTEGRITY_VIOLATED_PARENT_MISSING_1 ||
 					e.getErrorCode() == org.h2.api.ErrorCode.CHECK_CONSTRAINT_VIOLATED_1 )
 				return 0;
-			throw new SQLException("Can't change object in table " + TableName() , e);
+			throw new SQLException("Can't change field " + change.FieldName + " for object in table " + TableName() , e);
 		} finally {
 			DbUtils.closeQuietly(sqlStatement);
 			DbUtils.closeQuietly(result);

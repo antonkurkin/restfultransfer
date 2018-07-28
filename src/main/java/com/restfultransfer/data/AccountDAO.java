@@ -54,21 +54,15 @@ public class AccountDAO extends LongIdObjectDAO<Account> {
 	public Account Create(long clientId, Currency currency) throws SQLException {
 		return Create(new ValuesFieldsAccount(clientId, currency));
 	}
-	
+
 	public int SetActive(long accountId, boolean active) throws SQLException {
 		Connection connection = null;
-		PreparedStatement sqlStatement = null;
-		ResultSet result = null;
 		try {
 			connection = getConnection();
-			sqlStatement = connection.prepareStatement("UPDATE Accounts SET Active = ? WHERE Id = ?");
-			sqlStatement.setBoolean(1, active);
-			sqlStatement.setLong(2, accountId);
-			return sqlStatement.executeUpdate();
-		} catch (SQLException e) {
-			throw new SQLException("Can't disabled Account in DB", e);
+			WhereBoolean activeSetter = new WhereBoolean("Active", active);
+			return ChangeField(connection, accountId, activeSetter);
 		} finally {
-			DbUtils.closeQuietly(connection, sqlStatement, result);
+			DbUtils.closeQuietly(connection);
 		}
 	}
 
