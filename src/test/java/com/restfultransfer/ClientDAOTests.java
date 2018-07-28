@@ -105,4 +105,18 @@ class ClientDAOTests extends DBBeforeLoad {
 		}
 	}
 
+	@Test
+	public void GetAllClients() {
+		try {
+			String[] names = {"anton", "alex", "peter", "anna"};
+			Vector<Client> clients = clientDAO.GetAll();
+			
+			assertEquals(names.length, clients.size());
+			for (int i = 0; i < clients.size(); i++)
+				assertEquals(names[i], clients.get(i).Name());
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("SQL exception");
+		}
+	}
 }
