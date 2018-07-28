@@ -30,7 +30,7 @@ public class TransactionDAO extends LongIdObjectDAO<Transaction> {
 				);
 	}
 	
-	public Vector<Transaction> GetAllByAccount(long accountId) throws Exception {
+	public Vector<Transaction> GetAllByAccount(long accountId) throws SQLException {
 		WhereLong whereAccount = new WhereLong("AccountId", accountId);
 		Vector<Transaction> transactions = GetAll(whereAccount);
 		WhereLong whereAccountTo = new WhereLong("AccountIdTo", accountId);
@@ -59,7 +59,7 @@ public class TransactionDAO extends LongIdObjectDAO<Transaction> {
 		}
 	}
 	
-	public Transaction CreateExternal(long accountId, BigDecimal amount) throws Exception {
+	public Transaction CreateExternal(long accountId, BigDecimal amount) throws SQLException {
 		return Create(new ValuesFieldsExtenal(accountId, amount));
 	}
 
@@ -88,7 +88,7 @@ public class TransactionDAO extends LongIdObjectDAO<Transaction> {
 		}
 	}
 	
-	public Transaction CreateInternal(long accountIdFrom, long accountIdTo, BigDecimal amountFrom, BigDecimal amountTo) throws Exception {
+	public Transaction CreateInternal(long accountIdFrom, long accountIdTo, BigDecimal amountFrom, BigDecimal amountTo) throws SQLException {
 		return Create(new ValuesFieldsIntenal(accountIdFrom, accountIdTo, amountFrom, amountTo));
 	}
 
@@ -111,7 +111,7 @@ public class TransactionDAO extends LongIdObjectDAO<Transaction> {
 		TRANSACTION_OK
 	}
 	
-	public ExecutionResult Execute(long transactionId) throws Exception {
+	public ExecutionResult Execute(long transactionId) throws SQLException {
 		Connection connection = null;
 		try
 		{
@@ -143,7 +143,7 @@ public class TransactionDAO extends LongIdObjectDAO<Transaction> {
 		} catch (SQLException e) {
 			if (connection != null)
 				connection.rollback();
-			throw new Exception("Can't execute transaction in DB", e);
+			throw new SQLException("Can't execute transaction in DB", e);
 		} finally {
 			DbUtils.closeQuietly(connection);
 		}

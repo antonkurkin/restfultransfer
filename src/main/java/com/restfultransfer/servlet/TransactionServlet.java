@@ -1,6 +1,7 @@
 package com.restfultransfer.servlet;
 
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.Vector;
 
 import javax.ws.rs.GET;
@@ -25,25 +26,25 @@ import com.restfultransfer.data.TransactionDAO.ExecutionResult;
 public class TransactionServlet {	
     @GET
     @Path("/{transactionId}")
-    public Transaction Get(@PathParam("transactionId") long transactionId) throws Exception {
+    public Transaction Get(@PathParam("transactionId") long transactionId) throws SQLException {
     	return (new TransactionDAO()).Get(transactionId);
     }
     
     @GET
     @Path("/list")
-    public Vector<Transaction> GetAll() throws Exception {
+    public Vector<Transaction> GetAll() throws SQLException {
     	return (new TransactionDAO()).GetAll();
     }
 
     @POST
     @Path("/newExt/{accountId},{amount}")
-    public Transaction CreateExternal(@PathParam("accountId") long accountId, @PathParam("amount") BigDecimal amount) throws Exception {
+    public Transaction CreateExternal(@PathParam("accountId") long accountId, @PathParam("amount") BigDecimal amount) throws SQLException {
     	return (new TransactionDAO()).CreateExternal(accountId, amount);
     }
     
     @POST
     @Path("/newInt/{accountIdFrom},{accountIdTo},{amount}")
-    public Transaction CreateInternal(@PathParam("accountIdFrom") long accountIdFrom, @PathParam("accountIdTo") long accountIdTo, @PathParam("amount") BigDecimal amount) throws Exception {
+    public Transaction CreateInternal(@PathParam("accountIdFrom") long accountIdFrom, @PathParam("accountIdTo") long accountIdTo, @PathParam("amount") BigDecimal amount) throws SQLException {
 		Account accountFrom = (new AccountDAO()).Get(accountIdFrom);
 		Account accountTo = (new AccountDAO()).Get(accountIdTo);
 		if (accountFrom == null || accountTo == null)
@@ -65,7 +66,7 @@ public class TransactionServlet {
     
     @PUT
     @Path("/{transactionId}/execute")
-    public Response Execute(@PathParam("transactionId") long transactionId) throws Exception {
+    public Response Execute(@PathParam("transactionId") long transactionId) throws SQLException {
     	ExecutionResult result = (new TransactionDAO()).Execute(transactionId);
     	switch (result)
     	{

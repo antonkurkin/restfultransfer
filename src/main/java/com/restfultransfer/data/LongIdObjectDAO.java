@@ -33,19 +33,19 @@ public abstract class LongIdObjectDAO<T> extends H2Connector {
 		}
 	}
 
-	public T Get(long Id) throws Exception {
+	public T Get(long Id) throws SQLException {
 		Connection connection = null;
 		try {
 			connection = getConnection();
 			return Get(connection, Id, false);
 		} catch (SQLException e) {
-			throw new Exception("Can't get object from table " + TableName(), e);
+			throw new SQLException("Can't get object from table " + TableName(), e);
 		} finally {
 			DbUtils.closeQuietly(connection);
 		}
 	}
 
-	protected Vector<T> GetAll(WhereField where) throws Exception {
+	protected Vector<T> GetAll(WhereField where) throws SQLException {
 		Connection connection = null;
 		PreparedStatement sqlStatement = null;
 		ResultSet result = null;
@@ -69,13 +69,13 @@ public abstract class LongIdObjectDAO<T> extends H2Connector {
 			}
 			return objects;
 		} catch (SQLException e) {
-			throw new Exception("Can't get objects from table " + TableName(), e);
+			throw new SQLException("Can't get objects from table " + TableName(), e);
 		} finally {
 			DbUtils.closeQuietly(connection, sqlStatement, result);
 		}
 	}
 
-	public Vector<T> GetAll() throws Exception {
+	public Vector<T> GetAll() throws SQLException {
 		return GetAll(null);
 	}
 
@@ -105,7 +105,7 @@ public abstract class LongIdObjectDAO<T> extends H2Connector {
 		abstract void SetValues(PreparedStatement sqlStatement) throws SQLException;
 	}
 	
-	protected T Create(ValuesFields fields) throws Exception {
+	protected T Create(ValuesFields fields) throws SQLException {
 		Connection connection = null;
 		PreparedStatement sqlStatement = null;
 		ResultSet result = null;
@@ -115,13 +115,11 @@ public abstract class LongIdObjectDAO<T> extends H2Connector {
 			fields.SetValues(sqlStatement);
 			int rowCount = sqlStatement.executeUpdate();
 			if (rowCount == 0)
-				throw new Exception("Account wasn't created in DB");
+				return null;
 			result = sqlStatement.getGeneratedKeys();
-			if (!result.next())
-				throw new Exception("Can't receive account Id from DB");
 			return Get(connection, result.getLong(1), false);
 		} catch (SQLException e) {
-			throw new Exception("Can't create account in DB", e);
+			throw new SQLException("Can't create object in table " + TableName() , e);
 		} finally {
 			DbUtils.closeQuietly(connection, sqlStatement, result);
 		}

@@ -51,11 +51,11 @@ public class AccountDAO extends LongIdObjectDAO<Account> {
 		}
 	}
 	
-	public Account Create(long clientId, Currency currency) throws Exception {
+	public Account Create(long clientId, Currency currency) throws SQLException {
 		return Create(new ValuesFieldsAccount(clientId, currency));
 	}
 	
-	public int SetActive(long accountId, boolean active) throws Exception {
+	public int SetActive(long accountId, boolean active) throws SQLException {
 		Connection connection = null;
 		PreparedStatement sqlStatement = null;
 		ResultSet result = null;
@@ -66,7 +66,7 @@ public class AccountDAO extends LongIdObjectDAO<Account> {
 			sqlStatement.setLong(2, accountId);
 			return sqlStatement.executeUpdate();
 		} catch (SQLException e) {
-			throw new Exception("Can't disabled Account in DB", e);
+			throw new SQLException("Can't disabled Account in DB", e);
 		} finally {
 			DbUtils.closeQuietly(connection, sqlStatement, result);
 		}
@@ -114,7 +114,7 @@ public class AccountDAO extends LongIdObjectDAO<Account> {
 		}
 	}
 	
-	public Vector<Account> GetAllByClient(long clientId) throws Exception {
+	public Vector<Account> GetAllByClient(long clientId) throws SQLException {
 		WhereLong whereClient = new WhereLong("ClientId", clientId);
 		return GetAll(whereClient);
 	}

@@ -24,7 +24,7 @@ public class ExchangeRateDAO extends H2Connector {
 				);
 	}
 	
-	public ExchangeRate Get(Currency currencyFrom, Currency currencyTo) throws Exception {
+	public ExchangeRate Get(Currency currencyFrom, Currency currencyTo) throws SQLException {
 		Connection connection = null;
 		PreparedStatement sqlStatement = null;
 		ResultSet result = null;
@@ -37,13 +37,13 @@ public class ExchangeRateDAO extends H2Connector {
 			
 			return ObjectByResultSet(result);
 		} catch (SQLException e) {
-			throw new Exception("Can't get account from DB", e);
+			throw new SQLException("Can't get exchange rate from DB", e);
 		} finally {
 			DbUtils.closeQuietly(connection, sqlStatement, result);
 		}
 	}
 
-	public Vector<ExchangeRate> GetAll() throws Exception {
+	public Vector<ExchangeRate> GetAll() throws SQLException {
 		Connection connection = null;
 		PreparedStatement sqlStatement = null;
 		ResultSet result = null;
@@ -61,13 +61,13 @@ public class ExchangeRateDAO extends H2Connector {
 			}
 			return objects;
 		} catch (SQLException e) {
-			throw new Exception("Can't get objects from table ExchangeRates", e);
+			throw new SQLException("Can't get objects from table ExchangeRates", e);
 		} finally {
 			DbUtils.closeQuietly(connection, sqlStatement, result);
 		}
 	}
 
-	public ExchangeRate Create(Currency currencyFrom, Currency currencyTo, double rate) throws Exception {
+	public ExchangeRate Create(Currency currencyFrom, Currency currencyTo, double rate) throws SQLException {
 		Connection connection = null;
 		PreparedStatement sqlStatement = null;
 		ResultSet result = null;
@@ -79,17 +79,18 @@ public class ExchangeRateDAO extends H2Connector {
 			sqlStatement.setDouble(3, rate);
 			int rowCount = sqlStatement.executeUpdate();
 			if (rowCount == 0)
-				throw new Exception("Exchange rate wasn't created in DB");
+				return null;
 			result = sqlStatement.getGeneratedKeys();
+			
 			return Get(currencyFrom, currencyTo);
 		} catch (SQLException e) {
-			throw new Exception("Can't create exchange rate in DB", e);
+			throw new SQLException("Can't create exchange rate in DB", e);
 		} finally {
 			DbUtils.closeQuietly(connection, sqlStatement, result);
 		}
 	}
 
-	public int Delete(Currency currencyFrom, Currency currencyTo) throws Exception {
+	public int Delete(Currency currencyFrom, Currency currencyTo) throws SQLException {
 		Connection connection = null;
 		PreparedStatement sqlStatement = null;
 		ResultSet result = null;
@@ -100,7 +101,7 @@ public class ExchangeRateDAO extends H2Connector {
 			sqlStatement.setString(2, currencyTo.getCurrencyCode());
 			return sqlStatement.executeUpdate();
 		} catch (SQLException e) {
-			throw new Exception("Can't delete exchange rate from DB", e);
+			throw new SQLException("Can't delete exchange rate from DB", e);
 		} finally {
 			DbUtils.closeQuietly(connection, sqlStatement, result);
 		}

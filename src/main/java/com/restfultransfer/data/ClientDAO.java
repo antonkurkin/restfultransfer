@@ -44,11 +44,11 @@ public class ClientDAO extends LongIdObjectDAO<Client> {
 		}
 	}
 	
-	public Client Create(String name) throws Exception {
+	public Client Create(String name) throws SQLException {
 		return Create(new ValuesFieldsClient(name));
 	}
 
-	public int ChangeName(Client client, String newName) throws Exception {
+	public int ChangeName(Client client, String newName) throws SQLException {
 		Connection connection = null;
 		PreparedStatement sqlStatement = null;
 		ResultSet result = null;
@@ -59,13 +59,13 @@ public class ClientDAO extends LongIdObjectDAO<Client> {
 			sqlStatement.setLong(2, client.Id());
 			return sqlStatement.executeUpdate();
 		} catch (SQLException e) {
-			throw new Exception("Can't change Client's name in DB", e);
+			throw new SQLException("Can't change Client's name in DB", e);
 		} finally {
 			DbUtils.closeQuietly(connection, sqlStatement, result);
 		}
 	}
 	
-	public int SetActive(long clientId, boolean active) throws Exception {
+	public int SetActive(long clientId, boolean active) throws SQLException {
 		Connection connection = null;
 		PreparedStatement sqlStatement = null;
 		ResultSet result = null;
@@ -76,7 +76,7 @@ public class ClientDAO extends LongIdObjectDAO<Client> {
 			sqlStatement.setLong(2, clientId);
 			return sqlStatement.executeUpdate();
 		} catch (SQLException e) {
-			throw new Exception("Can't change active state of Client in DB", e);
+			throw new SQLException("Can't change active state of Client in DB", e);
 		} finally {
 			DbUtils.closeQuietly(connection, sqlStatement, result);
 		}
@@ -91,7 +91,7 @@ public class ClientDAO extends LongIdObjectDAO<Client> {
 		void SetField(int n, PreparedStatement sqlStatement) throws SQLException { sqlStatement.setString(n, s); }
 	}
 
-	public Vector<Client> GetAllByName(String name) throws Exception {
+	public Vector<Client> GetAllByName(String name) throws SQLException {
 		WhereString whereName = new WhereString("Name", name);
 		return GetAll(whereName);
 	}

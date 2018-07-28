@@ -1,5 +1,6 @@
 package com.restfultransfer.servlet;
 
+import java.sql.SQLException;
 import java.util.Vector;
 
 import javax.ws.rs.GET;
@@ -21,37 +22,37 @@ import com.restfultransfer.data.AccountDAO;
 public class ClientServlet {
     @GET
     @Path("/list")
-    public Vector<Client> GetAll() throws Exception {
+    public Vector<Client> GetAll() throws SQLException {
     	return (new ClientDAO()).GetAll();
     }
     
     @GET
     @Path("/{clientId}")
-    public Client Get(@PathParam("clientId") long clientId) throws Exception {
+    public Client Get(@PathParam("clientId") long clientId) throws SQLException {
     	return (new ClientDAO()).Get(clientId);
     }
     
     @GET
     @Path("/{clientId}/accounts")
-    public Vector<Account> GetAccounts(@PathParam("clientId") long clientId) throws Exception {
+    public Vector<Account> GetAccounts(@PathParam("clientId") long clientId) throws SQLException {
     	return (new AccountDAO()).GetAllByClient(clientId);
     }
 
     @GET
     @Path("/byName/{name}")
-    public Vector<Client> GetAll(@PathParam("name") String name) throws Exception {
+    public Vector<Client> GetAll(@PathParam("name") String name) throws SQLException {
     	return (new ClientDAO()).GetAllByName(name);
     }
     
     @POST
     @Path("/new/{name}")
-    public Client Create(@PathParam("name") String name) throws Exception {
+    public Client Create(@PathParam("name") String name) throws SQLException {
     	return (new ClientDAO()).Create(name);
     }
 
     @PUT
     @Path("/{clientId}/setName/{newName}")
-    public Response SetName(@PathParam("clientId") long clientId, @PathParam("newName") String newName) throws Exception {
+    public Response SetName(@PathParam("clientId") long clientId, @PathParam("newName") String newName) throws SQLException {
     	ClientDAO clientDAO = new ClientDAO();
     	Client client = clientDAO.Get(clientId);
     	if (client == null)
@@ -64,7 +65,7 @@ public class ClientServlet {
     
     @PUT
     @Path("/{clientId}/deactivate")
-    public Response Deactivate(@PathParam("clientId") long clientId) throws Exception {
+    public Response Deactivate(@PathParam("clientId") long clientId) throws SQLException {
     	int changed = (new ClientDAO()).SetActive(clientId, false);
     	if (changed != 1)
         	return Response.status(Response.Status.NOT_FOUND).build();
@@ -76,7 +77,7 @@ public class ClientServlet {
 
     @PUT
     @Path("/{clientId}/activate")
-    public Response Activate(@PathParam("clientId") long clientId) throws Exception {
+    public Response Activate(@PathParam("clientId") long clientId) throws SQLException {
     	int changed = (new ClientDAO()).SetActive(clientId, true);
     	if (changed != 1)
         	return Response.status(Response.Status.NOT_FOUND).build();

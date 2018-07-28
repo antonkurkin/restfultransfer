@@ -15,7 +15,7 @@ public class H2Connector {
 		DbUtils.loadDriver("org.h2.Driver");
 	}
 	
-	public static Connection getConnection() throws ClassNotFoundException, SQLException {
+	public static Connection getConnection() throws SQLException {
 		return DriverManager.getConnection("jdbc:h2:mem:restfultransfer;DB_CLOSE_DELAY=-1");
 	}
 	
