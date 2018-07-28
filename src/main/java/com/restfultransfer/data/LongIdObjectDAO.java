@@ -45,6 +45,23 @@ public abstract class LongIdObjectDAO<T> extends H2Connector {
 		}
 	}
 
+	public abstract class WhereField {
+		public final String FieldName;
+		public WhereField(String FieldName) {
+			this.FieldName = FieldName;
+		}
+		abstract void SetField(int n, PreparedStatement sqlStatement) throws SQLException;
+	}
+
+	public class WhereLong extends WhereField {
+		long l;
+		public WhereLong(String FieldName, long l) {
+			super(FieldName);
+			this.l = l;
+		}
+		void SetField(int n, PreparedStatement sqlStatement) throws SQLException { sqlStatement.setLong(n, l); }
+	}
+
 	protected Vector<T> GetAll(WhereField where) throws SQLException {
 		Connection connection = null;
 		PreparedStatement sqlStatement = null;
