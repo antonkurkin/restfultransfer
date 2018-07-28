@@ -99,6 +99,9 @@ class ClientDAOTests extends DBBeforeLoad {
 			Client clientGet = clientDAO.Get(clientNew.Id());
 			assertEquals(clientNew.Name(), clientGet.Name());
 			assertEquals(clientNew.Created(), clientGet.Created());
+
+			clientGet = clientDAO.Get(1);
+			assertNotEquals(clientGet.Created(), clientNew.Created());
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("SQL exception");

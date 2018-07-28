@@ -75,16 +75,24 @@ class AccountDAOTests extends DBBeforeLoad{
 			fail("SQL exception");
 		}
 	}
-
+	
 	@Test
 	public void CreateAccount() {
 		try {
-			Account accountNew = accountDAO.Create(3, Currency.getInstance("CNY"));
-			assertEquals("CNY", accountNew.Currency().getCurrencyCode());
+			Account accountNew = accountDAO.Create(3, Currency.getInstance("RUB"));
+			assertEquals(9, accountNew.Id());
+			assertEquals(3, accountNew.ClientId());
+			assertEquals("RUB", accountNew.Currency().getCurrencyCode());
 			
 			Account accountGet = accountDAO.Get(accountNew.Id());
 			assertEquals(accountNew.Currency(), accountGet.Currency());
 			assertEquals(accountNew.Created(), accountGet.Created());
+
+			accountGet = accountDAO.Get(1);
+			assertNotEquals(accountGet.Created(), accountNew.Created());
+			
+			accountNew = accountDAO.Create(99, Currency.getInstance("CNY"));
+			assertEquals(null, accountNew);
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("SQL exception");
