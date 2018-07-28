@@ -129,4 +129,19 @@ class TransactionDAOTests extends DBBeforeLoad{
 			fail("SQL exception");
 		}
 	}
+	
+	@Test
+	public void GetAllTrasactions() {
+		try {
+			int[] amounts = {3000 ,300 ,-100 ,100 ,10 ,7000 ,-700 ,-10 ,-100};
+			Vector<Transaction> transactions = transactionDAO.GetAll();
+			
+			assertEquals(amounts.length, transactions.size());
+			for (int i = 0; i < transactions.size(); i++)
+				assertEquals(0, transactions.get(i).Amount().compareTo(BigDecimal.valueOf(amounts[i])));
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("SQL exception");
+		}
+	}
 }
