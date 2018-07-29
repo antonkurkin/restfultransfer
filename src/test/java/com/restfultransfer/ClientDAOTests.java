@@ -45,7 +45,7 @@ class ClientDAOTests extends DBBeforeTest {
 			assertEquals(0, changed);
 
 			changed = clientDAO.ChangeName(2, "");
-			assertEquals(0, changed);
+			assertEquals(-1, changed);
 
 			client = clientDAO.Get(2);
 			assertEquals("alex", client.Name());
