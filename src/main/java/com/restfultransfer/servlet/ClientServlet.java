@@ -65,9 +65,7 @@ public class ClientServlet {
     	int changed = (new ClientDAO()).SetActive(clientId, false);
     	if (changed != 1)
         	return Response.status(Response.Status.NOT_FOUND).build();
-		AccountDAO accountDAO = new AccountDAO();
-		for (Account account : accountDAO.GetAllByClient(clientId))
-			accountDAO.SetActive(account.Id(), false);
+    	(new AccountDAO()).DeactivateByClientId(clientId);
     	return Response.status(Response.Status.NO_CONTENT).build();
     }
 

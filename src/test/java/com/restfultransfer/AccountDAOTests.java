@@ -119,4 +119,28 @@ class AccountDAOTests extends DBBeforeTest{
 			fail("SQL exception");
 		}
 	}
+	
+	@Test
+	public void DeactivateByClientId() {
+		try {
+			Boolean[] active = {true, true, true, true, true, true, true, true};
+			Vector<Account> accounts = accountDAO.GetAll();
+			for (int i = 0; i < accounts.size(); i++)
+				assertEquals(active[i], accounts.get(i).isActive());
+			
+			accountDAO.DeactivateByClientId(2);
+			Boolean[] activeNew = {true, true, false, false, false, true, true, true};
+			accounts = accountDAO.GetAll();
+			for (int i = 0; i < accounts.size(); i++)
+				assertEquals(activeNew[i], accounts.get(i).isActive());
+
+			accountDAO.DeactivateByClientId(99);
+			accounts = accountDAO.GetAll();
+			for (int i = 0; i < accounts.size(); i++)
+				assertEquals(activeNew[i], accounts.get(i).isActive());
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("SQL exception");
+		}
+	}
 }
