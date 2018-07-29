@@ -59,12 +59,24 @@ public class AccountDAO extends LongIdObjectDAO<Account> {
 		try {
 			connection = getConnection();
 			WhereBoolean activeSetter = new WhereBoolean("Active", active);
-			return ChangeField(connection, accountId, activeSetter);
+			return ChangeFieldById(connection, accountId, activeSetter);
 		} finally {
 			DbUtils.closeQuietly(connection);
 		}
 	}
 
+	public int DeactivateByClientId(long clientId) throws SQLException {
+		Connection connection = null;
+		try {
+			connection = getConnection();
+			WhereBoolean activeSetter = new WhereBoolean("Active", false);
+			WhereLong clientSetter = new WhereLong("ClientId", clientId);
+			return ChangeFieldWhere(connection, activeSetter, clientSetter);
+		} finally {
+			DbUtils.closeQuietly(connection);
+		}
+	}
+	
 	private class WhereBigDecimal extends WhereField {
 		BigDecimal bd;
 		public WhereBigDecimal(String FieldName, BigDecimal bd) {
@@ -76,7 +88,7 @@ public class AccountDAO extends LongIdObjectDAO<Account> {
 
 	private int UpdateBalance(Connection connection, Account account, BigDecimal newBalance) throws SQLException {
 		WhereBigDecimal balanceSetter = new WhereBigDecimal("Balance", newBalance);
-		return ChangeField(connection, account.Id(), balanceSetter);
+		return ChangeFieldById(connection, account.Id(), balanceSetter);
 	}
 	
 	public Transaction.State ExecuteTransaction(Connection connection, Transaction transaction) throws SQLException {

@@ -101,7 +101,7 @@ public class TransactionDAO extends LongIdObjectDAO<Transaction> {
 
 	private int SetResultCode(Connection connection, Transaction transaction, Transaction.State result) throws SQLException {
 		WhereInt resultSetter = new WhereInt("ResultCode", result.Code());
-		return ChangeField(connection, transaction.Id(), resultSetter);
+		return ChangeFieldById(connection, transaction.Id(), resultSetter);
 	}
 	
 	public enum ExecutionResult {

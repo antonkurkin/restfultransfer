@@ -61,7 +61,7 @@ public class ClientDAO extends LongIdObjectDAO<Client> {
 		try {
 			connection = getConnection();
 			WhereString newNameSetter = new WhereString("Name", newName);
-			return ChangeField(connection, clientId, newNameSetter);
+			return ChangeFieldById(connection, clientId, newNameSetter);
 		} finally {
 			DbUtils.closeQuietly(connection);
 		}
@@ -72,7 +72,7 @@ public class ClientDAO extends LongIdObjectDAO<Client> {
 		try {
 			connection = getConnection();
 			WhereBoolean activeSetter = new WhereBoolean("Active", active);
-			return ChangeField(connection, clientId, activeSetter);
+			return ChangeFieldById(connection, clientId, activeSetter);
 		} finally {
 			DbUtils.closeQuietly(connection);
 		}

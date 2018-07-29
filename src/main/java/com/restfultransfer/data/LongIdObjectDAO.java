@@ -105,14 +105,18 @@ public abstract class LongIdObjectDAO<T> extends H2Connector {
 		return GetAll(null);
 	}
 
-	protected int ChangeField(Connection connection, long id, WhereField change) throws SQLException {
+	protected int ChangeFieldById(Connection connection, long id, WhereField change) throws SQLException {
+		return ChangeFieldWhere(connection, change, new WhereLong("Id", id));
+	}
+	
+	protected int ChangeFieldWhere(Connection connection, WhereField change, WhereField where) throws SQLException {
 		PreparedStatement sqlStatement = null;
 		ResultSet result = null;
 		try {
 			connection = getConnection();
-			sqlStatement = connection.prepareStatement("UPDATE " + TableName() + " SET " + change.FieldName + " = ? WHERE Id = ?");
+			sqlStatement = connection.prepareStatement("UPDATE " + TableName() + " SET " + change.FieldName + " = ? WHERE " + where.FieldName + " = ?");
 			change.SetField(1, sqlStatement);
-			sqlStatement.setLong(2, id);
+			where.SetField(2, sqlStatement);
 			return sqlStatement.executeUpdate();
 		} catch (SQLException e) {
 			if (	e.getErrorCode() == org.h2.api.ErrorCode.REFERENTIAL_INTEGRITY_VIOLATED_PARENT_MISSING_1 ||
