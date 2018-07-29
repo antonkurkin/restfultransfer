@@ -113,7 +113,6 @@ public abstract class LongIdObjectDAO<T> extends H2Connector {
 		PreparedStatement sqlStatement = null;
 		ResultSet result = null;
 		try {
-			connection = getConnection();
 			sqlStatement = connection.prepareStatement("UPDATE " + TableName() + " SET " + change.FieldName + " = ? WHERE " + where.FieldName + " = ?");
 			change.SetField(1, sqlStatement);
 			where.SetField(2, sqlStatement);
