@@ -16,6 +16,9 @@ public class Client {
     @JsonProperty()
 	private Timestamp created;
 	
+    @SuppressWarnings("unused")
+	private Client() {} //for json deserialization
+    
 	public Client(
 			long Id,
 			String name,
@@ -31,4 +34,5 @@ public class Client {
 	public String    Name()     { return name; }
 	public boolean   isActive() { return active; }
 	public Timestamp Created()  { return created; }
+	
 }
