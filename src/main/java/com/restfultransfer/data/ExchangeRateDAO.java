@@ -82,6 +82,8 @@ public class ExchangeRateDAO extends H2Connector {
 			
 			return Get(currencyFrom, currencyTo);
 		} catch (SQLException e) {
+			if (e.getErrorCode() == org.h2.api.ErrorCode.DUPLICATE_KEY_1)
+				return null;
 			throw new SQLException("Can't create exchange rate in DB", e);
 		} finally {
 			DbUtils.closeQuietly(connection);
