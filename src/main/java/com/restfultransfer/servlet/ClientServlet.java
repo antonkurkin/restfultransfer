@@ -26,7 +26,10 @@ public class ClientServlet {
     @GET
     @Path("/list")
     public Vector<Client> GetAll() throws SQLException {
-    	return (new ClientDAO()).GetAll();
+    	Vector<Client> clients = (new ClientDAO()).GetAll();
+    	if (clients.isEmpty())
+    		return null;
+    	return clients;
     }
     
     @GET
@@ -38,13 +41,19 @@ public class ClientServlet {
     @GET
     @Path("/{clientId}/accounts")
     public Vector<Account> GetAccounts(@PathParam("clientId") long clientId) throws SQLException {
-    	return (new AccountDAO()).GetAllByClient(clientId);
+    	Vector<Account> accounts = (new AccountDAO()).GetAllByClient(clientId);
+    	if (accounts.isEmpty())
+    		return null;
+    	return accounts;
     }
 
     @GET
     @Path("/byName/{name}")
     public Vector<Client> GetAll(@PathParam("name") String name) throws SQLException {
-    	return (new ClientDAO()).GetAllByName(name);
+    	Vector<Client> clients = (new ClientDAO()).GetAllByName(name);
+    	if (clients.isEmpty())
+    		return null;
+    	return clients;
     }
     
     @POST

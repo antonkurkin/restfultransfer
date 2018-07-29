@@ -40,7 +40,7 @@ class ClientServletTests extends RESTBeforeTest{
 	        assertEquals(204, response.getStatusLine().getStatusCode());
 		} catch (Exception e) {
 			e.printStackTrace();
-			fail("SQL exception");
+			fail("Unexpected exception");
 		}
 	}
 	
@@ -75,7 +75,7 @@ class ClientServletTests extends RESTBeforeTest{
 	        		mapper.readValue(EntityUtils.toString(response.getEntity()), new TypeReference<Vector<Account>>() {});
 			assertEquals(3, accounts.size());
 
-			response = httpClient.execute(new HttpGet(Address("99")));
+			response = httpClient.execute(new HttpGet(Address("99/accounts")));
 	        assertEquals(null, response.getEntity());
 	        assertEquals(204, response.getStatusLine().getStatusCode());
 		} catch (Exception e) {
@@ -111,10 +111,8 @@ class ClientServletTests extends RESTBeforeTest{
 				assertEquals("anton", clients.get(i).Name());
 			
 			response = httpClient.execute(new HttpGet(Address("byName/john")));
-	        assertEquals(200, response.getStatusLine().getStatusCode());
-	        clients =
-	        		mapper.readValue(EntityUtils.toString(response.getEntity()), new TypeReference<Vector<Client>>() {});
-			assertEquals(0, clients.size());
+	        assertEquals(204, response.getStatusLine().getStatusCode());
+	        assertEquals(null, response.getEntity());
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Unexpected Exception");

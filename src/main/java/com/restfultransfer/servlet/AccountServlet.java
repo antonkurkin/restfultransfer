@@ -26,7 +26,10 @@ public class AccountServlet {
     @GET
     @Path("/list")
     public Vector<Account> GetAll() throws SQLException {
-    	return (new AccountDAO()).GetAll();
+    	Vector<Account> accounts = (new AccountDAO()).GetAll();
+    	if (accounts.isEmpty())
+    		return null;
+    	return accounts;
     }
     
     @GET
@@ -38,7 +41,10 @@ public class AccountServlet {
     @GET
     @Path("/{accountId}/transactions")
     public Vector<Transaction> GetTransactions(@PathParam("accountId") long accountId) throws SQLException {
-    	return (new TransactionDAO()).GetAllByAccount(accountId);
+    	Vector<Transaction> transactions = (new TransactionDAO()).GetAllByAccount(accountId);
+    	if (transactions.isEmpty())
+    		return null;
+    	return transactions;
     }
 
     @POST

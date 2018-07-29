@@ -35,7 +35,10 @@ public class TransactionServlet {
     @GET
     @Path("/list")
     public Vector<Transaction> GetAll() throws SQLException {
-    	return (new TransactionDAO()).GetAll();
+    	Vector<Transaction> transactions = (new TransactionDAO()).GetAll();
+    	if (transactions.isEmpty())
+    		return null;
+    	return transactions;
     }
 
     @POST
