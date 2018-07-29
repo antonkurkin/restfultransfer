@@ -31,7 +31,6 @@ public class AccountDAO extends LongIdObjectDAO<Account> {
 	}
 	
 	class ValuesFieldsAccount extends ValuesFields {
-		final String[] fieldNames = {"ClientId", "Currency"};
 		final long clientId;
 		final Currency currency;
 		
@@ -40,9 +39,9 @@ public class AccountDAO extends LongIdObjectDAO<Account> {
 			this.clientId = clientId;
 			this.currency = currency;
 		}
-		
+
 		@Override
-		String[] FieldNames() { return fieldNames; }
+		public String GetRequestSuffix() { return "(ClientId, Currency) VALUES (?, ?)"; }
 		
 		@Override
 		void SetValues(PreparedStatement sqlStatement) throws SQLException {

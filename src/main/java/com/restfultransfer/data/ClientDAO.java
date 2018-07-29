@@ -27,7 +27,6 @@ public class ClientDAO extends LongIdObjectDAO<Client> {
 	}
 
 	class ValuesFieldsClient extends ValuesFields {
-		final String[] fieldNames = {"Name"};
 		final String name;
 		
 		public ValuesFieldsClient(String name)
@@ -36,7 +35,7 @@ public class ClientDAO extends LongIdObjectDAO<Client> {
 		}
 		
 		@Override
-		String[] FieldNames() { return fieldNames; }
+		public String GetRequestSuffix() { return "(Name) VALUES (?)"; }
 		
 		@Override
 		void SetValues(PreparedStatement sqlStatement) throws SQLException {

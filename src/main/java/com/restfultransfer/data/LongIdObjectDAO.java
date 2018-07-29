@@ -126,28 +126,7 @@ public abstract class LongIdObjectDAO<T> extends H2Connector {
 	}
 
 	abstract class ValuesFields {
-		public String GetRequest() { //build string "(Field1, Field2, ... FieldN) VALUES (?, ?, ... ?)"
-			StringBuilder builderNames = new StringBuilder();
-			StringBuilder builderValues = new StringBuilder();
-			builderNames.append('(');
-			builderValues.append('(');
-			String separator = "";
-			for (String field : FieldNames())
-			{
-				builderNames.append(separator);
-				builderValues.append(separator);
-				builderNames.append(field);
-				builderValues.append('?');
-				separator = ", ";
-			}
-			builderNames.append(')');
-			builderValues.append(')');
-			builderNames.append(" VALUES ");
-			builderNames.append(builderValues);
-			return builderNames.toString();
-		}
-
-		abstract String[] FieldNames();
+		abstract public String GetRequestSuffix();
 		abstract void SetValues(PreparedStatement sqlStatement) throws SQLException;
 	}
 	
@@ -157,7 +136,7 @@ public abstract class LongIdObjectDAO<T> extends H2Connector {
 		ResultSet result = null;
 		try {
 			connection = getConnection();
-			sqlStatement = connection.prepareStatement("INSERT INTO " + TableName() + " " + fields.GetRequest(), Statement.RETURN_GENERATED_KEYS);
+			sqlStatement = connection.prepareStatement("INSERT INTO " + TableName() + " " + fields.GetRequestSuffix(), Statement.RETURN_GENERATED_KEYS);
 			fields.SetValues(sqlStatement);
 			int rowCount = sqlStatement.executeUpdate();
 			if (rowCount == 0)

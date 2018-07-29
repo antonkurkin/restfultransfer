@@ -39,7 +39,6 @@ public class TransactionDAO extends LongIdObjectDAO<Transaction> {
 	}
 
 	class ValuesFieldsExtenal extends ValuesFields {
-		final String[] fieldNames = {"AccountId", "Amount"};
 		final long accountId;
 		final BigDecimal amount;
 		
@@ -48,9 +47,9 @@ public class TransactionDAO extends LongIdObjectDAO<Transaction> {
 			this.accountId = accountId;
 			this.amount = amount;
 		}
-		
+
 		@Override
-		String[] FieldNames() { return fieldNames; }
+		public String GetRequestSuffix() { return "(AccountId, Amount) VALUES (?, ?)"; }
 		
 		@Override
 		void SetValues(PreparedStatement sqlStatement) throws SQLException {
@@ -64,7 +63,6 @@ public class TransactionDAO extends LongIdObjectDAO<Transaction> {
 	}
 
 	class ValuesFieldsIntenal extends ValuesFields {
-		final String[] fieldNames = {"AccountId", "AccountIdTo", "Amount", "AmountTo"};
 		final long accountIdFrom, accountIdTo;
 		final BigDecimal amountFrom, amountTo;
 		
@@ -75,9 +73,9 @@ public class TransactionDAO extends LongIdObjectDAO<Transaction> {
 			this.amountFrom = amountFrom;
 			this.amountTo = amountTo;
 		}
-		
+
 		@Override
-		String[] FieldNames() { return fieldNames; }
+		public String GetRequestSuffix() { return "(AccountId, AccountIdTo, Amount, AmountTo) VALUES (?, ?, ?, ?)"; }
 		
 		@Override
 		void SetValues(PreparedStatement sqlStatement) throws SQLException {
