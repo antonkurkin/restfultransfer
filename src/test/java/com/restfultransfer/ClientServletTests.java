@@ -2,9 +2,11 @@ package com.restfultransfer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.io.IOException;
 import java.util.Vector;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
@@ -170,6 +172,16 @@ class ClientServletTests extends RESTBeforeTest{
 		}
 	}
 
+	public void CheckAccounts(Client client, boolean active) throws ClientProtocolException, IOException {
+		HttpResponse response = httpClient.execute(new HttpGet(Address(client.Id() + "/accounts")));
+        assertEquals(200, response.getStatusLine().getStatusCode());
+        Vector<Account> accounts =
+        		mapper.readValue(EntityUtils.toString(response.getEntity()), new TypeReference<Vector<Account>>() {});
+		assertEquals(3, accounts.size());
+		for (Account account : accounts)
+			assertEquals(active, account.isActive());
+	}
+	
 	@Test
 	public void ClientActivate()
 	{
@@ -178,23 +190,29 @@ class ClientServletTests extends RESTBeforeTest{
 	    	Client client = mapper.readValue(EntityUtils.toString(responseGet.getEntity()), new TypeReference<Client>() {});
 	    	assertEquals(true, client.isActive());
 	    	
+	    	CheckAccounts(client, true);
 			HttpResponse response = httpClient.execute(new HttpPut(Address(client.Id() + "/deactivate")));
 	        assertEquals(204, response.getStatusLine().getStatusCode());
 	        assertEquals(null, response.getEntity());
-	        
+
 	        responseGet = httpClient.execute(new HttpGet(Address(client.Id() + "")));
 	    	client = mapper.readValue(EntityUtils.toString(responseGet.getEntity()), new TypeReference<Client>() {});
 	    	assertEquals(false, client.isActive());
+	    	CheckAccounts(client, false);
 
 			response = httpClient.execute(new HttpPut(Address(client.Id() + "/activate")));
 	        assertEquals(204, response.getStatusLine().getStatusCode());
 	        assertEquals(null, response.getEntity());
+	    	CheckAccounts(client, false);
 	        
 	        responseGet = httpClient.execute(new HttpGet(Address(client.Id() + "")));
 	    	client = mapper.readValue(EntityUtils.toString(responseGet.getEntity()), new TypeReference<Client>() {});
 	    	assertEquals(true, client.isActive());
 	        
 			response = httpClient.execute(new HttpPut(Address("99/deactivate")));
+	        assertEquals(404, response.getStatusLine().getStatusCode());
+	        
+			response = httpClient.execute(new HttpPut(Address("0/activate")));
 	        assertEquals(404, response.getStatusLine().getStatusCode());
 		} catch (Exception e) {
 			e.printStackTrace();
