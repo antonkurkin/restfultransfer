@@ -74,6 +74,8 @@ public class TransactionServlet {
         	return Response.status(Response.Status.NOT_FOUND).build();
     	case TRANSACTION_ALREADY_EXECUTED:
         	return Response.status(Response.Status.NOT_MODIFIED).build();
+    	case TRANSACTION_FAILED:
+    		return Response.status(Response.Status.BAD_REQUEST).build();
 		default:
 	    	return Response.status(Response.Status.NO_CONTENT).build();
     	}

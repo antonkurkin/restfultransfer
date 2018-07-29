@@ -54,27 +54,36 @@ public class ClientServlet {
     @Path("/{clientId}/setName/{newName}")
     public Response SetName(@PathParam("clientId") long clientId, @PathParam("newName") String newName) throws SQLException {
     	int changed = (new ClientDAO()).ChangeName(clientId, newName);
-    	if (changed != 1)
-        	return Response.status(Response.Status.NOT_FOUND).build();
-    	return Response.status(Response.Status.NO_CONTENT).build();
+    	switch (changed)
+    	{
+    	case  1: return Response.status(Response.Status.NO_CONTENT).build();
+    	case  0: return Response.status(Response.Status.NOT_FOUND).build();
+    	default: return Response.status(Response.Status.BAD_REQUEST).build();
+    	}
     }
     
     @PUT
     @Path("/{clientId}/deactivate")
     public Response Deactivate(@PathParam("clientId") long clientId) throws SQLException {
     	int changed = (new ClientDAO()).SetActive(clientId, false);
-    	if (changed != 1)
-        	return Response.status(Response.Status.NOT_FOUND).build();
     	(new AccountDAO()).DeactivateByClientId(clientId);
-    	return Response.status(Response.Status.NO_CONTENT).build();
+    	switch (changed)
+    	{
+    	case  1: return Response.status(Response.Status.NO_CONTENT).build();
+    	case  0: return Response.status(Response.Status.NOT_FOUND).build();
+    	default: return Response.status(Response.Status.BAD_REQUEST).build();
+    	}
     }
 
     @PUT
     @Path("/{clientId}/activate")
     public Response Activate(@PathParam("clientId") long clientId) throws SQLException {
     	int changed = (new ClientDAO()).SetActive(clientId, true);
-    	if (changed != 1)
-        	return Response.status(Response.Status.NOT_FOUND).build();
-    	return Response.status(Response.Status.NO_CONTENT).build();
+    	switch (changed)
+    	{
+    	case  1: return Response.status(Response.Status.NO_CONTENT).build();
+    	case  0: return Response.status(Response.Status.NOT_FOUND).build();
+    	default: return Response.status(Response.Status.BAD_REQUEST).build();
+    	}
     }
 }

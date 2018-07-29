@@ -51,9 +51,12 @@ public class AccountServlet {
     	//right now it is possible to create active account for inactive client
     	//I planned to force it by database constraint, but didn't get to it
     	int changed = (new AccountDAO()).SetActive(accountId, active);
-    	if (changed != 1)
-        	return Response.status(Response.Status.NOT_FOUND).build();
-    	return Response.status(Response.Status.NO_CONTENT).build();
+    	switch (changed)
+    	{
+    	case  1: return Response.status(Response.Status.NO_CONTENT).build();
+    	case  0: return Response.status(Response.Status.NOT_FOUND).build();
+    	default: return Response.status(Response.Status.BAD_REQUEST).build();
+    	}
     }
     
     @PUT
