@@ -134,17 +134,9 @@ class ClientServletTests extends RESTBeforeTest{
 			assertEquals("dmitry", clientNew.Name());
 			assertEquals(5, clientNew.Id());
 
-			response = httpClient.execute(new HttpGet(Address(clientNew.Id() + "")));
-	        assertEquals(200, response.getStatusLine().getStatusCode());
-	    	Client clientGet =
-	    			mapper.readValue(EntityUtils.toString(response.getEntity()), new TypeReference<Client>() {});
-	    	
-			assertEquals(clientNew.Name(), clientGet.Name());
-			assertEquals(clientNew.Created(), clientGet.Created());
-
 			response = httpClient.execute(new HttpGet(Address("1")));
 	        assertEquals(200, response.getStatusLine().getStatusCode());
-	    	clientGet =
+	        Client clientGet =
 	    			mapper.readValue(EntityUtils.toString(response.getEntity()), new TypeReference<Client>() {});
 			assertNotEquals(clientGet.Created(), clientNew.Created());
 
