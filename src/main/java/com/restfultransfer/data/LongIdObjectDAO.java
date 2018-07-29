@@ -134,7 +134,7 @@ public abstract class LongIdObjectDAO<T> extends H2Connector {
 		abstract void SetValues(PreparedStatement sqlStatement) throws SQLException;
 	}
 	
-	protected T Create(ValuesFields fields) throws SQLException {
+	protected long Create(ValuesFields fields) throws SQLException {
 		Connection connection = null;
 		PreparedStatement sqlStatement = null;
 		ResultSet result = null;
@@ -144,15 +144,15 @@ public abstract class LongIdObjectDAO<T> extends H2Connector {
 			fields.SetValues(sqlStatement);
 			int rowCount = sqlStatement.executeUpdate();
 			if (rowCount == 0)
-				return null;
+				return 0;
 			result = sqlStatement.getGeneratedKeys();
 			if (!result.next())
-				return null;
-			return Get(connection, result.getLong(1), false);
+				return 0;
+			return result.getLong(1);
 		} catch (SQLException e) {
 			if (	e.getErrorCode() == org.h2.api.ErrorCode.REFERENTIAL_INTEGRITY_VIOLATED_PARENT_MISSING_1 ||
 					e.getErrorCode() == org.h2.api.ErrorCode.CHECK_CONSTRAINT_VIOLATED_1 )
-				return null;
+				return 0;
 			throw new SQLException("Can't create object in table " + TableName() , e);
 		} finally {
 			DbUtils.closeQuietly(connection, sqlStatement, result);

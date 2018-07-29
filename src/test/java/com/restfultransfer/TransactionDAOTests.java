@@ -54,8 +54,10 @@ class TransactionDAOTests extends DBBeforeTest{
 	@Test
 	public void CreateExternalTransaction() {
 		try {
-			Transaction transaction = transactionDAO.CreateExternal(2, BigDecimal.valueOf(100));
-			assertEquals(10, transaction.Id());
+			int before = transactionDAO.GetAll().size();
+			long transactionId = transactionDAO.CreateExternal(2, BigDecimal.valueOf(100));
+			assertEquals(10, transactionId);
+			Transaction transaction = transactionDAO.Get(transactionId);
 			assertEquals(2, transaction.AccountId());
 			assertEquals(0, transaction.AccountIdTo());
 			assertEquals(0, transaction.Amount().compareTo(BigDecimal.valueOf(100)));
@@ -67,9 +69,14 @@ class TransactionDAOTests extends DBBeforeTest{
 
 			transactionGet = transactionDAO.Get(1);
 			assertNotEquals(transactionGet.Created(), transaction.Created());
+
+			int after = transactionDAO.GetAll().size();
+			assertEquals(before + 1, after);
 			
-			transaction = transactionDAO.CreateExternal(99, BigDecimal.ZERO);
-			assertEquals(null, transaction);
+			transactionId = transactionDAO.CreateExternal(99, BigDecimal.ZERO);
+			assertEquals(0, transactionId);
+			
+			assertEquals(after, transactionDAO.GetAll().size());
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("SQL exception");
@@ -79,8 +86,10 @@ class TransactionDAOTests extends DBBeforeTest{
 	@Test
 	public void CreateInternalTransaction() {
 		try {
-			Transaction transaction = transactionDAO.CreateInternal(2, 3, BigDecimal.valueOf(-100), BigDecimal.valueOf(300));
-			assertEquals(10, transaction.Id());
+			int before = transactionDAO.GetAll().size();
+			long transactionId = transactionDAO.CreateInternal(2, 3, BigDecimal.valueOf(-100), BigDecimal.valueOf(300));
+			assertEquals(10, transactionId);
+			Transaction transaction = transactionDAO.Get(transactionId);
 			assertEquals(2, transaction.AccountId());
 			assertEquals(3, transaction.AccountIdTo());
 			assertEquals(0, transaction.Amount().compareTo(BigDecimal.valueOf(-100)));
@@ -92,6 +101,14 @@ class TransactionDAOTests extends DBBeforeTest{
 
 			transactionGet = transactionDAO.Get(1);
 			assertNotEquals(transactionGet.Created(), transaction.Created());
+
+			int after = transactionDAO.GetAll().size();
+			assertEquals(before + 1, after);
+			
+			transactionId = transactionDAO.CreateExternal(99, BigDecimal.ZERO);
+			assertEquals(0, transactionId);
+			
+			assertEquals(after, transactionDAO.GetAll().size());
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("SQL exception");
@@ -103,29 +120,29 @@ class TransactionDAOTests extends DBBeforeTest{
 		try {
 			int before = transactionDAO.GetAll().size();
 			
-			Transaction transaction = transactionDAO.CreateExternal(99, BigDecimal.valueOf(10));
-			assertEquals(null, transaction);
+			long transaction = transactionDAO.CreateExternal(99, BigDecimal.valueOf(10));
+			assertEquals(0, transaction);
 			
 			transaction = transactionDAO.CreateExternal(1, BigDecimal.ZERO);
-			assertEquals(null, transaction);
+			assertEquals(0, transaction);
 			
 			transaction = transactionDAO.CreateInternal(-1, 2, BigDecimal.valueOf(-10), BigDecimal.valueOf(10));
-			assertEquals(null, transaction);
+			assertEquals(0, transaction);
 			
 			transaction = transactionDAO.CreateInternal(1, 99, BigDecimal.valueOf(-10), BigDecimal.valueOf(10));
-			assertEquals(null, transaction);
+			assertEquals(0, transaction);
 			
 			transaction = transactionDAO.CreateInternal(1, 2, BigDecimal.valueOf(100), BigDecimal.valueOf(10));
-			assertEquals(null, transaction);
+			assertEquals(0, transaction);
 			
 			transaction = transactionDAO.CreateInternal(1, 2, BigDecimal.valueOf(-10), BigDecimal.valueOf(-100));
-			assertEquals(null, transaction);
+			assertEquals(0, transaction);
 			
 			transaction = transactionDAO.CreateInternal(1, 2, BigDecimal.ZERO, BigDecimal.valueOf(10));
-			assertEquals(null, transaction);
+			assertEquals(0, transaction);
 			
 			transaction = transactionDAO.CreateInternal(1, 2, BigDecimal.valueOf(-10), BigDecimal.ZERO);
-			assertEquals(null, transaction);
+			assertEquals(0, transaction);
 			
 			assertEquals(before, transactionDAO.GetAll().size());
 		} catch (Exception e) {

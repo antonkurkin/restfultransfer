@@ -50,7 +50,7 @@ public class AccountDAO extends LongIdObjectDAO<Account> {
 		}
 	}
 	
-	public Account Create(long clientId, Currency currency) throws SQLException {
+	public long Create(long clientId, Currency currency) throws SQLException {
 		return Create(new ValuesFieldsAccount(clientId, currency));
 	}
 

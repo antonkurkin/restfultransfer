@@ -58,7 +58,7 @@ public class TransactionDAO extends LongIdObjectDAO<Transaction> {
 		}
 	}
 	
-	public Transaction CreateExternal(long accountId, BigDecimal amount) throws SQLException {
+	public long CreateExternal(long accountId, BigDecimal amount) throws SQLException {
 		return Create(new ValuesFieldsExtenal(accountId, amount));
 	}
 
@@ -86,7 +86,7 @@ public class TransactionDAO extends LongIdObjectDAO<Transaction> {
 		}
 	}
 	
-	public Transaction CreateInternal(long accountIdFrom, long accountIdTo, BigDecimal amountFrom, BigDecimal amountTo) throws SQLException {
+	public long CreateInternal(long accountIdFrom, long accountIdTo, BigDecimal amountFrom, BigDecimal amountTo) throws SQLException {
 		return Create(new ValuesFieldsIntenal(accountIdFrom, accountIdTo, amountFrom, amountTo));
 	}
 

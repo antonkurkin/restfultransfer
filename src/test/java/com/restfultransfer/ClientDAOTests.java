@@ -99,22 +99,23 @@ class ClientDAOTests extends DBBeforeTest {
 	@Test
 	public void CreateClient() {
 		try {
-			Client clientNew = clientDAO.Create("dmitry");
-			assertEquals("dmitry", clientNew.Name());
-			
-			Client clientGet = clientDAO.Get(clientNew.Id());
-			assertEquals(clientNew.Name(), clientGet.Name());
-			assertEquals(clientNew.Created(), clientGet.Created());
-
-			clientGet = clientDAO.Get(1);
-			assertNotEquals(clientGet.Created(), clientNew.Created());
-			
 			int before = clientDAO.GetAll().size();
+			long clientId = clientDAO.Create("dmitry");
+			assertEquals(5, clientId);
 			
-			clientNew = clientDAO.Create("");
-			assertEquals(null, clientNew);
+			Client clientNew = clientDAO.Get(clientId);
+			assertEquals("dmitry", clientNew.Name());
+
+			Client clientGet = clientDAO.Get(1);
+			assertNotEquals(clientGet.Created(), clientNew.Created());
+
+			int after = clientDAO.GetAll().size();
+			assertEquals(before + 1, after);
 			
-			assertEquals(before, clientDAO.GetAll().size());
+			long wrongId = clientDAO.Create("");
+			assertEquals(0, wrongId);
+			
+			assertEquals(after, clientDAO.GetAll().size());
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("SQL exception");

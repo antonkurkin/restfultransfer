@@ -43,7 +43,7 @@ public class ClientDAO extends LongIdObjectDAO<Client> {
 		}
 	}
 	
-	public Client Create(String name) throws SQLException {
+	public long Create(String name) throws SQLException {
 		return Create(new ValuesFieldsClient(name));
 	}
 

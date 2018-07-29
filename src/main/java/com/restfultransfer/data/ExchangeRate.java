@@ -15,6 +15,9 @@ public class ExchangeRate {
     @JsonProperty()
 	private double   rate;
 
+    @SuppressWarnings("unused")
+	private ExchangeRate() {} //for json deserialization
+    
 	public ExchangeRate(
 			Currency currencyFrom,
 			Currency currencyTo,

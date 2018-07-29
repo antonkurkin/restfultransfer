@@ -17,6 +17,9 @@ import com.restfultransfer.data.ClientDAO;
 import com.restfultransfer.data.Account;
 import com.restfultransfer.data.AccountDAO;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 @Path("/client")
 @Produces(MediaType.APPLICATION_JSON)
 public class ClientServlet {
@@ -46,8 +49,12 @@ public class ClientServlet {
     
     @POST
     @Path("/new/{name}")
-    public Client Create(@PathParam("name") String name) throws SQLException {
-    	return (new ClientDAO()).Create(name);
+    public Response Create(@PathParam("name") String name) throws SQLException, URISyntaxException {
+    	long clientId = (new ClientDAO()).Create(name);
+    	if (clientId == 0)
+    		return Response.status(Response.Status.NOT_FOUND).build();
+    	URI clientURI = new URI("client/" + clientId);
+        return Response.created(clientURI).build();
     }
 
     @PUT

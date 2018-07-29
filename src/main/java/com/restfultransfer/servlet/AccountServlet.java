@@ -5,6 +5,8 @@ import com.restfultransfer.data.AccountDAO;
 import com.restfultransfer.data.Transaction;
 import com.restfultransfer.data.TransactionDAO;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.Currency;
 import java.util.Vector;
@@ -41,10 +43,14 @@ public class AccountServlet {
 
     @POST
     @Path("/new/{clientId},{currency}")
-    public Account Create(@PathParam("clientId") long clientId, @PathParam("currency") String currency) throws SQLException {
+    public Response Create(@PathParam("clientId") long clientId, @PathParam("currency") String currency) throws SQLException, URISyntaxException {
     	//right now it is possible to create active account for inactive client
     	//I planned to force it by database constraint, but didn't get to it
-    	return (new AccountDAO()).Create(clientId, Currency.getInstance(currency));
+    	long accountId = (new AccountDAO()).Create(clientId, Currency.getInstance(currency));
+    	if (accountId == 0)
+    		return Response.status(Response.Status.NOT_FOUND).build();
+    	URI accountURI = new URI("account/" + accountId);
+        return Response.created(accountURI).build();
     }
     
     public Response SetActive(long accountId, boolean active) throws SQLException {

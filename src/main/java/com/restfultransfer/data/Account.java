@@ -20,7 +20,10 @@ public class Account {
 	private boolean active;
     @JsonProperty()
 	private Timestamp created;
-	
+
+    @SuppressWarnings("unused")
+	private Account() {} //for json deserialization
+    
 	public Account(
 			long Id,
 			long clientId,

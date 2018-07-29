@@ -1,6 +1,8 @@
 package com.restfultransfer.servlet;
 
 import java.math.BigDecimal;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.Vector;
 
@@ -38,30 +40,38 @@ public class TransactionServlet {
 
     @POST
     @Path("/newExt/{accountId},{amount}")
-    public Transaction CreateExternal(@PathParam("accountId") long accountId, @PathParam("amount") BigDecimal amount) throws SQLException {
-    	return (new TransactionDAO()).CreateExternal(accountId, amount);
+    public Response CreateExternal(@PathParam("accountId") long accountId, @PathParam("amount") BigDecimal amount) throws SQLException, URISyntaxException {
+    	long transactionId = (new TransactionDAO()).CreateExternal(accountId, amount);
+    	if (transactionId == 0)
+    		return Response.status(Response.Status.NOT_FOUND).build();
+    	URI transactionURI = new URI("transaction/" + transactionId);
+        return Response.created(transactionURI).build();
     }
     
     @POST
     @Path("/newInt/{accountIdFrom},{accountIdTo},{amount}")
-    public Transaction CreateInternal(@PathParam("accountIdFrom") long accountIdFrom, @PathParam("accountIdTo") long accountIdTo, @PathParam("amount") BigDecimal amount) throws SQLException {
+    public Response CreateInternal(@PathParam("accountIdFrom") long accountIdFrom, @PathParam("accountIdTo") long accountIdTo, @PathParam("amount") BigDecimal amount) throws SQLException, URISyntaxException {
 		Account accountFrom = (new AccountDAO()).Get(accountIdFrom);
 		Account accountTo = (new AccountDAO()).Get(accountIdTo);
 		if (accountFrom == null || accountTo == null)
-			return null;
+    		return Response.status(Response.Status.NOT_FOUND).build();
 		BigDecimal amountTo;
 		if (accountFrom.Currency() != accountTo.Currency())
 		{
 			ExchangeRate rate = (new ExchangeRateDAO()).Get(accountFrom.Currency(), accountTo.Currency());
 			if (rate == null)
-				return null;
+	    		return Response.status(Response.Status.NOT_FOUND).build();
 			amountTo = rate.Exchange(amount);
 		}
 		else
 			amountTo = amount;
 		BigDecimal amountFrom = amount.negate();
 		
-    	return (new TransactionDAO()).CreateInternal(accountIdFrom, accountIdTo, amountFrom, amountTo);
+    	long transactionId = (new TransactionDAO()).CreateInternal(accountIdFrom, accountIdTo, amountFrom, amountTo);
+    	if (transactionId == 0)
+    		return Response.status(Response.Status.NOT_FOUND).build();
+    	URI transactionURI = new URI("transaction/" + transactionId);
+        return Response.created(transactionURI).build();
     }
     
     @PUT

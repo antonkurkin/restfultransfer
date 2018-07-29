@@ -38,6 +38,9 @@ public class Transaction {
     @JsonProperty()
 	private int resultCode;
 
+    @SuppressWarnings("unused")
+	private Transaction() {} //for json deserialization
+    
 	public Transaction(
 			long Id,
 			long accountId,
