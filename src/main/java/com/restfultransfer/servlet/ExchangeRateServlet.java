@@ -1,5 +1,7 @@
 package com.restfultransfer.servlet;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.Currency;
 import java.util.Vector;
@@ -28,13 +30,20 @@ public class ExchangeRateServlet {
     @GET
     @Path("/list")
     public Vector<ExchangeRate> GetAll() throws SQLException {
-    	return (new ExchangeRateDAO()).GetAll();
+    	Vector<ExchangeRate> exchangeRates = (new ExchangeRateDAO()).GetAll();
+    	if (exchangeRates.isEmpty())
+    		return null;
+    	return exchangeRates;
     }
 
     @POST
     @Path("/new/{currencyFrom},{currencyTo},{rate}")
-    public ExchangeRate Create(@PathParam("currencyFrom") String currencyFrom, @PathParam("currencyTo") String currencyTo, @PathParam("rate") Double rate) throws SQLException {
-    	return (new ExchangeRateDAO()).Create(Currency.getInstance(currencyFrom), Currency.getInstance(currencyTo), rate);
+    public Response Create(@PathParam("currencyFrom") String currencyFrom, @PathParam("currencyTo") String currencyTo, @PathParam("rate") Double rate) throws SQLException, URISyntaxException {
+    	ExchangeRate exchangeRate = (new ExchangeRateDAO()).Create(Currency.getInstance(currencyFrom), Currency.getInstance(currencyTo), rate);
+    	if (exchangeRate == null)
+    		return Response.status(Response.Status.NOT_FOUND).build();
+    	URI exchangeRateURI = new URI("exchange/" + exchangeRate.CurrencyFrom().getCurrencyCode() + "/" + exchangeRate.CurrencyTo().getCurrencyCode());
+        return Response.created(exchangeRateURI).build();
     }
 
     @DELETE
@@ -42,7 +51,7 @@ public class ExchangeRateServlet {
     public Response Delete(@PathParam("currencyFrom") String currencyFrom, @PathParam("currencyTo") String currencyTo) throws SQLException {
     	int deleted = (new ExchangeRateDAO()).Delete(Currency.getInstance(currencyFrom), Currency.getInstance(currencyTo));
     	if (deleted > 0)
-    		return Response.status(Response.Status.OK).build();
-    	return Response.status(Response.Status.NO_CONTENT).build();
+    		return Response.status(Response.Status.NO_CONTENT).build();
+    	return Response.status(Response.Status.NOT_FOUND).build();
     }
 }
