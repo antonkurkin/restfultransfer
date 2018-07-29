@@ -15,6 +15,7 @@ import org.apache.http.util.EntityUtils;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.restfultransfer.data.Account;
 import com.restfultransfer.data.Transaction;
 
 class TransactionServletTests extends RESTBeforeTest {
@@ -166,7 +167,41 @@ class TransactionServletTests extends RESTBeforeTest {
 			fail("Unexpected exception");
 		}
 	}
-	
-    //@PUT
-    //@Path("/{transactionId}/execute")
+
+	@Test
+	public void Execute() {
+		try {
+			HttpResponse response = httpClient.execute(new HttpPost(Address("newInt/2,3,10")));
+	        assertEquals(201, response.getStatusLine().getStatusCode());
+			response = httpClient.execute(new HttpGet(response.getLastHeader("Location").getValue()));
+	    	Transaction transaction = mapper.readValue(EntityUtils.toString(response.getEntity()), new TypeReference<Transaction>() {});
+	    	
+			response = httpClient.execute(new HttpGet(super.Address("account/" + transaction.AccountId())));
+	    	Account accountFrom = mapper.readValue(EntityUtils.toString(response.getEntity()), new TypeReference<Account>() {});
+			response = httpClient.execute(new HttpGet(super.Address("account/" + transaction.AccountIdTo())));
+	    	Account accountTo = mapper.readValue(EntityUtils.toString(response.getEntity()), new TypeReference<Account>() {});
+
+	    	BigDecimal beforeFrom = accountFrom.Balance();
+	    	BigDecimal beforeTo = accountTo.Balance();
+
+			response = httpClient.execute(new HttpPut(Address(transaction.Id() + "/execute")));
+	        assertEquals(204, response.getStatusLine().getStatusCode());
+
+			response = httpClient.execute(new HttpGet(Address("" + transaction.Id())));
+	    	transaction = mapper.readValue(EntityUtils.toString(response.getEntity()), new TypeReference<Transaction>() {});
+	        assertEquals(0, transaction.ResultCode());
+
+			response = httpClient.execute(new HttpGet(super.Address("account/" + transaction.AccountId())));
+	    	accountFrom = mapper.readValue(EntityUtils.toString(response.getEntity()), new TypeReference<Account>() {});
+			response = httpClient.execute(new HttpGet(super.Address("account/" + transaction.AccountIdTo())));
+	    	accountTo = mapper.readValue(EntityUtils.toString(response.getEntity()), new TypeReference<Account>() {});
+	    	
+	        assertEquals(0, accountFrom.Balance().compareTo(beforeFrom.subtract(BigDecimal.TEN)));
+	        assertEquals(0, accountTo.Balance().compareTo(beforeTo.add(BigDecimal.TEN)));
+	    	
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("Unexpected exception");
+		}
+	}
 }
