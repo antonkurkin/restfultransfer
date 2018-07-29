@@ -65,12 +65,8 @@ class TransactionDAOTests extends DBBeforeTest{
 			assertEquals(0, transaction.AccountIdTo());
 			assertEquals(0, transaction.Amount().compareTo(BigDecimal.valueOf(100)));
 			assertEquals(0, transaction.AmountTo().compareTo(BigDecimal.ZERO));
-			
-			Transaction transactionGet = transactionDAO.Get(transaction.Id());
-			assertEquals(transactionGet.AccountId(), transaction.AccountId());
-			assertEquals(transactionGet.AccountIdTo(), transaction.AccountIdTo());
 
-			transactionGet = transactionDAO.Get(1);
+			Transaction transactionGet = transactionDAO.Get(1);
 			assertNotEquals(transactionGet.Created(), transaction.Created());
 
 			int after = transactionDAO.GetAll().size();
@@ -97,18 +93,14 @@ class TransactionDAOTests extends DBBeforeTest{
 			assertEquals(3, transaction.AccountIdTo());
 			assertEquals(0, transaction.Amount().compareTo(BigDecimal.valueOf(-100)));
 			assertEquals(0, transaction.AmountTo().compareTo(BigDecimal.valueOf(300)));
-			
-			Transaction transactionGet = transactionDAO.Get(transaction.Id());
-			assertEquals(transactionGet.AccountId(), transaction.AccountId());
-			assertEquals(transactionGet.AccountIdTo(), transaction.AccountIdTo());
 
-			transactionGet = transactionDAO.Get(1);
+			Transaction transactionGet = transactionDAO.Get(1);
 			assertNotEquals(transactionGet.Created(), transaction.Created());
 
 			int after = transactionDAO.GetAll().size();
 			assertEquals(before + 1, after);
 			
-			transactionId = transactionDAO.CreateExternal(99, BigDecimal.ZERO);
+			transactionId = transactionDAO.CreateInternal(99, 1, BigDecimal.ZERO, BigDecimal.TEN);
 			assertEquals(0, transactionId);
 			
 			assertEquals(after, transactionDAO.GetAll().size());

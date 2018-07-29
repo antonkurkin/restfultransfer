@@ -56,7 +56,7 @@ public class TransactionServlet {
     public Response CreateInternal(@PathParam("accountIdFrom") long accountIdFrom, @PathParam("accountIdTo") long accountIdTo, @PathParam("amount") BigDecimal amount) throws SQLException, URISyntaxException {
 		Account accountFrom = (new AccountDAO()).Get(accountIdFrom);
 		Account accountTo = (new AccountDAO()).Get(accountIdTo);
-		if (accountFrom == null || accountTo == null)
+		if (accountFrom == null || accountTo == null || amount.compareTo(BigDecimal.ZERO) < 0)
     		return Response.status(Response.Status.NOT_FOUND).build();
 		BigDecimal amountTo;
 		if (accountFrom.Currency() != accountTo.Currency())
