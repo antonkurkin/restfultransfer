@@ -42,13 +42,18 @@ public class AccountServlet {
     @POST
     @Path("/new/{clientId},{currency}")
     public Account Create(@PathParam("clientId") long clientId, @PathParam("currency") String currency) throws SQLException {
+    	//right now it is possible to create active account for inactive client
+    	//I planned to force it by database constraint, but didn't get to it
     	return (new AccountDAO()).Create(clientId, Currency.getInstance(currency));
     }
+    
     public Response SetActive(long accountId, boolean active) throws SQLException {
+    	//right now it is possible to create active account for inactive client
+    	//I planned to force it by database constraint, but didn't get to it
     	int changed = (new AccountDAO()).SetActive(accountId, active);
     	if (changed != 1)
-        	return Response.status(Response.Status.NO_CONTENT).build();
-    	return Response.status(Response.Status.OK).build();
+        	return Response.status(Response.Status.NOT_FOUND).build();
+    	return Response.status(Response.Status.NO_CONTENT).build();
     }
     
     @PUT
