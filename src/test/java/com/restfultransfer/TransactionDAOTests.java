@@ -8,8 +8,11 @@ import java.util.Vector;
 
 import org.junit.jupiter.api.Test;
 
+import com.restfultransfer.data.Account;
+import com.restfultransfer.data.AccountDAO;
 import com.restfultransfer.data.Transaction;
 import com.restfultransfer.data.TransactionDAO;
+import com.restfultransfer.data.TransactionDAO.ExecutionResult;
 
 class TransactionDAOTests extends DBBeforeTest{
 
@@ -160,6 +163,152 @@ class TransactionDAOTests extends DBBeforeTest{
 			assertEquals(amounts.length, transactions.size());
 			for (int i = 0; i < transactions.size(); i++)
 				assertEquals(0, transactions.get(i).Amount().compareTo(BigDecimal.valueOf(amounts[i])));
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("SQL exception");
+		}
+	}
+	
+	@Test
+	public void TransactionExecutedAlready() {
+		try {
+			Transaction transaction = transactionDAO.Get(1);
+			Account account = (new AccountDAO()).Get(transaction.AccountId());
+			int beforeResult = transaction.ResultCode();
+			BigDecimal beforeBalance = account.Balance();
+			ExecutionResult result = transactionDAO.Execute(transaction.Id());
+			assertEquals(ExecutionResult.TRANSACTION_ALREADY_EXECUTED, result);
+
+			transaction = transactionDAO.Get(transaction.Id());
+			account = (new AccountDAO()).Get(transaction.AccountId());
+			assertEquals(beforeResult, transaction.ResultCode());
+			assertEquals(0, beforeBalance.compareTo(account.Balance()));
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("SQL exception");
+		}
+	}
+
+	@Test
+	public void TransactionNotEnough() {
+		try {
+			long transactionId = transactionDAO.CreateInternal(1, 2, BigDecimal.valueOf(-999999), BigDecimal.valueOf(300));
+			
+			Transaction transaction = transactionDAO.Get(transactionId);
+			Account account = (new AccountDAO()).Get(transaction.AccountId());
+			Account accountTo = (new AccountDAO()).Get(transaction.AccountIdTo());
+			BigDecimal beforeBalance = account.Balance();
+			BigDecimal beforeBalanceTo = accountTo.Balance();
+			ExecutionResult result = transactionDAO.Execute(transaction.Id());
+			assertEquals(ExecutionResult.TRANSACTION_FAILED, result);
+
+			transaction = transactionDAO.Get(transaction.Id());
+			account = (new AccountDAO()).Get(transaction.AccountId());
+			accountTo = (new AccountDAO()).Get(transaction.AccountIdTo());
+			assertEquals(0, beforeBalance.compareTo(account.Balance()));
+			assertEquals(0, beforeBalanceTo.compareTo(accountTo.Balance()));
+			
+			assertEquals(Transaction.State.TRANSACTION_NOT_ENOUGH.Code(), transaction.ResultCode());
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("SQL exception");
+		}
+	}
+	
+	@Test
+	public void TransactionNotFound() {
+		try {
+			ExecutionResult result = transactionDAO.Execute(999);
+			assertEquals(ExecutionResult.TRANSACTION_NOT_FOUND, result);
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("SQL exception");
+		}
+	}
+	
+	@Test
+	public void TransactionOk() {
+		try {
+			BigDecimal From = BigDecimal.valueOf(-100);
+			BigDecimal To = BigDecimal.valueOf(300);
+
+			long transactionId = transactionDAO.CreateInternal(2, 3, From, To);
+			Transaction transaction = transactionDAO.Get(transactionId);
+			assertEquals(Transaction.State.TRANSACTION_PENDING.Code(), transaction.ResultCode());
+			
+			AccountDAO accountDAO = new AccountDAO();
+			Account accountFrom = accountDAO.Get(transaction.AccountId());
+			Account accountTo = accountDAO.Get(transaction.AccountIdTo());
+			
+			BigDecimal beforeFrom = accountFrom.Balance();
+			BigDecimal beforeTo = accountTo.Balance();
+			
+			ExecutionResult result = transactionDAO.Execute(transactionId);
+			assertEquals(ExecutionResult.TRANSACTION_OK, result);
+
+			accountFrom = accountDAO.Get(transaction.AccountId());
+			accountTo = accountDAO.Get(transaction.AccountIdTo());
+			
+			assertEquals(0, beforeFrom.add(From).compareTo(accountFrom.Balance()));
+			assertEquals(0, beforeTo.add(To).compareTo(accountTo.Balance()));
+
+			transaction = transactionDAO.Get(transactionId);
+			assertEquals(Transaction.State.TRANSACTION_OK.Code(), transaction.ResultCode());
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("SQL exception");
+		}
+	}
+
+	@Test
+	public void TransactionInactive() {
+		try {
+			long transactionId = transactionDAO.CreateInternal(1, 2, BigDecimal.valueOf(-100), BigDecimal.valueOf(300));
+			Transaction transaction = transactionDAO.Get(transactionId);
+			(new AccountDAO()).SetActive(transaction.AccountId(), false);
+			
+			Account account = (new AccountDAO()).Get(transaction.AccountId());
+			Account accountTo = (new AccountDAO()).Get(transaction.AccountIdTo());
+			BigDecimal beforeBalance = account.Balance();
+			BigDecimal beforeBalanceTo = accountTo.Balance();
+			ExecutionResult result = transactionDAO.Execute(transaction.Id());
+			assertEquals(ExecutionResult.TRANSACTION_FAILED, result);
+
+			transaction = transactionDAO.Get(transaction.Id());
+			account = (new AccountDAO()).Get(transaction.AccountId());
+			accountTo = (new AccountDAO()).Get(transaction.AccountIdTo());
+			assertEquals(0, beforeBalance.compareTo(account.Balance()));
+			assertEquals(0, beforeBalanceTo.compareTo(accountTo.Balance()));
+			
+			assertEquals(Transaction.State.TRANSACTION_ACCOUNT_INACTIVE.Code(), transaction.ResultCode());
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("SQL exception");
+		}
+	}
+
+	@Test
+	public void TransactionInactive2() {
+		try {
+			long transactionId = transactionDAO.CreateInternal(1, 2, BigDecimal.valueOf(-100), BigDecimal.valueOf(300));
+			Transaction transaction = transactionDAO.Get(transactionId);
+			(new AccountDAO()).SetActive(transaction.AccountIdTo(), false);
+			
+			Account account = (new AccountDAO()).Get(transaction.AccountId());
+			Account accountTo = (new AccountDAO()).Get(transaction.AccountIdTo());
+			BigDecimal beforeBalance = account.Balance();
+			BigDecimal beforeBalanceTo = accountTo.Balance();
+			ExecutionResult result = transactionDAO.Execute(transaction.Id());
+			assertEquals(ExecutionResult.TRANSACTION_FAILED, result);
+
+			transaction = transactionDAO.Get(transaction.Id());
+			account = (new AccountDAO()).Get(transaction.AccountId());
+			accountTo = (new AccountDAO()).Get(transaction.AccountIdTo());
+			assertEquals(0, beforeBalance.compareTo(account.Balance()));
+			assertEquals(0, beforeBalanceTo.compareTo(accountTo.Balance()));
+			
+			assertEquals(Transaction.State.TRANSACTION_ACCOUNT2_INACTIVE.Code(), transaction.ResultCode());
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("SQL exception");

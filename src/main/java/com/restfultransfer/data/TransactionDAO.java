@@ -135,6 +135,8 @@ public class TransactionDAO extends LongIdObjectDAO<Transaction> {
 		            return ExecutionResult.TRANSACTION_FAILED;
 				}
 	            connection.commit();
+	            if (result != Transaction.State.TRANSACTION_OK)
+		            return ExecutionResult.TRANSACTION_FAILED;
 	    		return ExecutionResult.TRANSACTION_OK;
 	        } catch (SQLException e) {
 	            connection.rollback();

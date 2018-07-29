@@ -67,6 +67,7 @@ CREATE TABLE Transactions (
   FOREIGN KEY (AccountId) REFERENCES Accounts(Id),
   FOREIGN KEY (AccountIdTo) REFERENCES Accounts(Id),
   CHECK (Amount <> 0),
+  CHECK (AccountId <> AccountIdTo),
   CHECK ((AccountIdTo IS NULL AND AmountTo = 0) OR (NOT AccountIdTo IS NULL AND AmountTo > 0 AND Amount < 0))
   -- CHECK (AccountActive(AccountId) AND AccountActive(AccountIdTo))
 );
