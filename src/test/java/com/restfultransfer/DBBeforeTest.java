@@ -2,6 +2,8 @@ package com.restfultransfer;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.concurrent.TimeUnit;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -23,6 +25,7 @@ public class DBBeforeTest {
 	public void InitDataset() {
     	try {
 	    	H2Connector.LoadSQLFile("src/test/dataset.sql");
+	    	TimeUnit.MILLISECONDS.sleep(1); // to be sure that timestamp differ on creation
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Dataset loading failed");
